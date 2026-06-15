@@ -20,11 +20,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { createFoundItemSchema, CreateFoundItemInput } from "@/zod/lostx.validation";
 import { ITEM_CATEGORIES } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
+import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { createFoundItemAction } from "@/actions/lostx/found-item.actions";
 
 export function FoundItemForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     register,
@@ -38,7 +41,6 @@ export function FoundItemForm() {
       title: "",
       description: "",
       category: "OTHER",
-      imageUrl: "",
       location: "",
       dateFound: new Date().toISOString().split("T")[0],
     },
@@ -46,10 +48,26 @@ export function FoundItemForm() {
 
   const category = watch("category");
 
+  const handleImageChange = (file: File | null) => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+  };
+
+  const clearImage = () => {
+    handleImageChange(null);
+  };
+
   const onSubmit = async (values: CreateFoundItemInput) => {
     setSubmitting(true);
     const formData = new FormData();
-    Object.entries(values).forEach(([k, v]) => formData.append(k, String(v ?? "")));
+    Object.entries(values).forEach(([key, value]) => formData.append(key, String(value ?? "")));
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
 
     const result = await createFoundItemAction(formData);
     setSubmitting(false);
@@ -107,10 +125,11 @@ export function FoundItemForm() {
         {errors.location && <p className="text-sm text-destructive">{errors.location.message}</p>}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="imageUrl">Image URL (optional)</Label>
-        <Input id="imageUrl" {...register("imageUrl")} placeholder="https://..." />
-      </div>
+      <ImageUploadField
+        previewUrl={imagePreview}
+        onFileChange={handleImageChange}
+        onClear={clearImage}
+      />
 
       <Button type="submit" disabled={submitting}>
         {submitting && <Spinner className="mr-2" />}

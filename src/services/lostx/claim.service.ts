@@ -2,7 +2,7 @@ import { httpClient } from "@/lib/axios/httpClient";
 import { Claim, ClaimListFilters } from "@/types/lostx.types";
 
 export const claimService = {
-  create: (data: { foundItemId: string; message: string }) =>
+  create: (data: { foundItemId: string; lostItemId: string; answer: string }) =>
     httpClient.post<Claim>("/claims", data),
 
   listMine: () => httpClient.get<Claim[]>("/claims/mine"),

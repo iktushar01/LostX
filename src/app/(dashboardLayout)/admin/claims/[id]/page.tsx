@@ -7,6 +7,7 @@ import { ClaimActions } from "@/components/admin/claim-actions";
 import { CategoryBadge, formatLabel } from "@/components/shared/ItemBadges";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ChevronLeft } from "lucide-react";
 
 interface AdminClaimDetailPageProps {
@@ -33,6 +34,7 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
 
   const claim = result.data;
   const foundItem = claim.foundItem;
+  const lostItem = claim.lostItem;
 
   return (
     <div className="space-y-6 p-6">
@@ -47,37 +49,13 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
 
       <PageHeader
         title="Claim Details"
-        description="Review claim information and take action."
+        description="Review claim information and compare verification answers."
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Claim Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div>
-              <p className="text-muted-foreground">Claim ID</p>
-              <p className="font-mono text-xs">{claim.id}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Message</p>
-              <p className="whitespace-pre-wrap">{claim.message}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Status</p>
-              <ClaimStatusBadge status={claim.status} />
-            </div>
-            <div>
-              <p className="text-muted-foreground">Created Date</p>
-              <p>{formatDate(claim.createdAt)}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>User Information</CardTitle>
+            <CardTitle>Claimant</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div>
@@ -88,58 +66,79 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
               <p className="text-muted-foreground">Email</p>
               <p>{claim.user?.email ?? "—"}</p>
             </div>
+            <div>
+              <p className="text-muted-foreground">Status</p>
+              <ClaimStatusBadge status={claim.status} />
+            </div>
+            <div>
+              <p className="text-muted-foreground">Submitted</p>
+              <p>{formatDate(claim.createdAt)}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Found Item</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div>
+              <p className="text-muted-foreground">Title</p>
+              <p className="font-medium">{foundItem?.title ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Category</p>
+              {foundItem?.category ? (
+                <CategoryBadge category={foundItem.category} />
+              ) : (
+                <p>—</p>
+              )}
+            </div>
+            <div>
+              <p className="text-muted-foreground">Location</p>
+              <p>{foundItem?.location ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Item Status</p>
+              <Badge variant="outline">
+                {foundItem?.status ? formatLabel(foundItem.status) : "—"}
+              </Badge>
+            </div>
           </CardContent>
         </Card>
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Found Item Information</CardTitle>
+            <CardTitle>Verification Review</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-[200px_1fr]">
-              <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
-                {foundItem?.imageUrl ? (
-                  <img
-                    src={foundItem.imageUrl}
-                    alt={foundItem.title}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                    No image
-                  </div>
-                )}
-              </div>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Title</p>
-                  <p className="font-medium">{foundItem?.title ?? "—"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Category</p>
-                  {foundItem?.category ? (
-                    <CategoryBadge category={foundItem.category} />
-                  ) : (
-                    <p>—</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Location</p>
-                  <p>{foundItem?.location ?? "—"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Date Found</p>
-                  <p>
-                    {foundItem?.dateFound
-                      ? formatDate(foundItem.dateFound)
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Item Status</p>
-                  <p>{foundItem?.status ? formatLabel(foundItem.status) : "—"}</p>
-                </div>
-              </div>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2 rounded-lg border p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Verification Question
+              </p>
+              <p className="text-sm">
+                {lostItem?.verificationQuestion ?? "No linked lost item report"}
+              </p>
+            </div>
+            <div className="space-y-2 rounded-lg border p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Linked Lost Report
+              </p>
+              <p className="text-sm font-medium">{lostItem?.title ?? "—"}</p>
+            </div>
+            <div className="space-y-2 rounded-lg border border-green-200 bg-green-50/50 p-4 dark:border-green-900 dark:bg-green-950/20">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Expected Answer
+              </p>
+              <p className="whitespace-pre-wrap text-sm font-medium">
+                {lostItem?.verificationAnswer ?? "—"}
+              </p>
+            </div>
+            <div className="space-y-2 rounded-lg border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                User Answer
+              </p>
+              <p className="whitespace-pre-wrap text-sm">{claim.answer}</p>
             </div>
           </CardContent>
         </Card>

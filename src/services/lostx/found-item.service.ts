@@ -5,10 +5,13 @@ export const foundItemService = {
   list: (params?: Record<string, unknown>) =>
     httpClient.get<FoundItem[]>("/found-items", { params }),
 
+  listMine: (params?: Record<string, unknown>) =>
+    httpClient.get<FoundItem[]>("/found-items/mine", { params }),
+
   getById: (id: string) =>
     httpClient.get<FoundItem>(`/found-items/${id}`),
 
-  create: (data: Record<string, unknown>) =>
+  create: (data: FormData) =>
     httpClient.post<FoundItem>("/found-items", data),
 
   delete: (id: string) =>

@@ -10,7 +10,6 @@ export async function createFoundItemAction(formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     category: formData.get("category"),
-    imageUrl: formData.get("imageUrl") || "",
     location: formData.get("location"),
     dateFound: formData.get("dateFound"),
   };
@@ -25,14 +24,22 @@ export async function createFoundItemAction(formData: FormData) {
   }
 
   try {
-    const payload = {
-      ...parsed.data,
-      imageUrl: parsed.data.imageUrl || null,
-    };
+    const payload = new FormData();
+    payload.append("title", parsed.data.title);
+    payload.append("description", parsed.data.description);
+    payload.append("category", parsed.data.category);
+    payload.append("location", parsed.data.location);
+    payload.append("dateFound", parsed.data.dateFound);
+
+    const image = formData.get("image");
+    if (image instanceof File && image.size > 0) {
+      payload.append("image", image);
+    }
 
     const response = await foundItemService.create(payload);
 
     revalidatePath("/dashboard/found");
+    revalidatePath("/dashboard");
     revalidatePath("/browse");
 
     return {
@@ -54,6 +61,15 @@ export async function getFoundItemsAction(params?: Record<string, unknown>) {
   }
 }
 
+export async function getMyFoundItemsAction(limit?: number) {
+  try {
+    const response = await foundItemService.listMine({ limit: limit ?? 50 });
+    return { success: true, data: response.data };
+  } catch {
+    return { success: false, data: [] };
+  }
+}
+
 export async function getFoundItemByIdAction(id: string) {
   try {
     const response = await foundItemService.getById(id);
@@ -67,6 +83,7 @@ export async function deleteFoundItemAction(id: string) {
   try {
     const response = await foundItemService.delete(id);
     revalidatePath("/dashboard/found");
+    revalidatePath("/dashboard");
     revalidatePath("/browse");
     return { success: true, message: response.message };
   } catch (error: unknown) {

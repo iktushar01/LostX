@@ -1,15 +1,15 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FoundItemList } from "@/components/found-items/FoundItemList";
-import { getFoundItemsAction } from "@/actions/lostx/found-item.actions";
+import { getMyFoundItemsAction } from "@/actions/lostx/found-item.actions";
 
 export default async function DashboardFoundPage() {
-  const result = await getFoundItemsAction({ limit: 24 });
+  const result = await getMyFoundItemsAction(24);
 
   return (
     <div className="p-6">
       <PageHeader
-        title="Found Items"
-        description="Items found on campus waiting to be claimed."
+        title="My Found Items"
+        description="Items you have reported as found."
         actionLabel="Report Found Item"
         actionHref="/dashboard/found/new"
       />

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/shared/modeToggle";
 import Logo from "@/components/shared/logo/logo";
+import { NavbarAuthMenu } from "@/components/shared/NavbarAuthMenu";
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -52,16 +53,7 @@ export function LandingNavbar() {
 
         <div className="hidden items-center gap-2 md:flex">
           <ModeToggle />
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button
-            size="sm"
-            className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20 hover:opacity-90"
-            asChild
-          >
-            <Link href="/register">Get Started</Link>
-          </Button>
+          <NavbarAuthMenu variant="landing" />
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
@@ -91,14 +83,11 @@ export function LandingNavbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-                <Button variant="outline" asChild>
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white" asChild>
-                  <Link href="/register">Get Started</Link>
-                </Button>
-              </div>
+              <NavbarAuthMenu
+                variant="landing"
+                mobile
+                onNavigate={() => setOpen(false)}
+              />
             </div>
           </motion.div>
         )}

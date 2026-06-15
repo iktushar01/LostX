@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Claim } from "@/types/lostx.types";
-import { StatusBadge, formatLabel } from "@/components/shared/ItemBadges";
+import { StatusBadge } from "@/components/shared/ItemBadges";
 import { EmptyState } from "@/components/shared/EmptyState";
 import {
   Table,
@@ -30,10 +30,9 @@ export function ClaimsList({ claims }: ClaimsListProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Found Item</TableHead>
-            <TableHead>Message</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Submitted</TableHead>
+            <TableHead>Item Title</TableHead>
+            <TableHead>Claim Status</TableHead>
+            <TableHead>Submission Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -46,14 +45,10 @@ export function ClaimsList({ claims }: ClaimsListProps) {
                 >
                   {claim.foundItem?.title ?? "Found item"}
                 </Link>
-                {claim.foundItem?.category && (
-                  <p className="text-xs text-muted-foreground">
-                    {formatLabel(claim.foundItem.category)}
-                  </p>
-                )}
               </TableCell>
-              <TableCell className="max-w-xs truncate">{claim.message}</TableCell>
-              <TableCell><StatusBadge status={claim.status} /></TableCell>
+              <TableCell>
+                <StatusBadge status={claim.status} />
+              </TableCell>
               <TableCell>{new Date(claim.createdAt).toLocaleDateString()}</TableCell>
             </TableRow>
           ))}

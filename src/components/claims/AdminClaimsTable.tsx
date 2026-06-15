@@ -52,7 +52,7 @@ export function AdminClaimsTable({ claims: initialClaims }: AdminClaimsTableProp
           <TableRow>
             <TableHead>Claimant</TableHead>
             <TableHead>Found Item</TableHead>
-            <TableHead>Message</TableHead>
+            <TableHead>User Answer</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -72,7 +72,7 @@ export function AdminClaimsTable({ claims: initialClaims }: AdminClaimsTableProp
                 </p>
               </TableCell>
               <TableCell className="max-w-xs">
-                <p className="line-clamp-3 text-sm">{claim.message}</p>
+                <p className="line-clamp-3 text-sm">{claim.answer}</p>
               </TableCell>
               <TableCell><StatusBadge status={claim.status} /></TableCell>
               <TableCell className="text-right">

@@ -30,10 +30,19 @@ export interface LostItem {
   location: string;
   dateLost: string;
   status: LostItemStatus;
+  verificationQuestion?: string | null;
   userId: string;
   createdAt: string;
   updatedAt: string;
   user?: ItemUser;
+}
+
+export interface LostItemForClaim {
+  id: string;
+  title: string;
+  category: ItemCategory;
+  status: LostItemStatus;
+  verificationQuestion: string | null;
 }
 
 export interface FoundItem {
@@ -54,14 +63,23 @@ export interface FoundItem {
 
 export interface Claim {
   id: string;
-  message: string;
+  answer: string;
   status: ClaimStatus;
   userId: string;
   foundItemId: string;
+  lostItemId?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: ItemUser;
   foundItem?: FoundItem & { user?: ItemUser };
+  lostItem?: {
+    id: string;
+    title: string;
+    verificationQuestion?: string | null;
+    verificationAnswer?: string | null;
+    status?: LostItemStatus;
+    category?: ItemCategory;
+  };
 }
 
 export interface BrowseFilters {
@@ -79,7 +97,17 @@ export interface AdminStats {
   recoveredItems: number;
 }
 
+export interface UserDashboardStats {
+  lostReports: number;
+  foundReports: number;
+  approvedClaims: number;
+}
+
 export interface ClaimListFilters {
   search?: string;
   status?: ClaimStatus | "";
 }
+
+export type BrowseItem =
+  | (LostItem & { itemType: "lost" })
+  | (FoundItem & { itemType: "found" });

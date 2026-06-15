@@ -125,7 +125,8 @@ export function ClaimsTable({
                 <TableHead>Claimant</TableHead>
                 <TableHead>Found Item</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Message</TableHead>
+                <TableHead>Verification</TableHead>
+                <TableHead>User Answer</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
@@ -160,7 +161,12 @@ export function ClaimsTable({
                       : "—"}
                   </TableCell>
                   <TableCell className="max-w-xs">
-                    <p className="line-clamp-2 text-sm">{claim.message}</p>
+                    <p className="line-clamp-2 text-sm">
+                      {claim.lostItem?.verificationQuestion ?? "—"}
+                    </p>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <p className="line-clamp-2 text-sm">{claim.answer}</p>
                   </TableCell>
                   <TableCell>
                     <ClaimStatusBadge status={claim.status} />

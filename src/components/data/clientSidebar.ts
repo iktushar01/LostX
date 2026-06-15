@@ -1,9 +1,10 @@
 import { SidebarData } from "@/types/sidebar";
+import { LOSTX_LOGO_LIGHT } from "@/components/shared/logo/logo";
 
 export const getClientSidebarData = async (): Promise<SidebarData> => {
   return {
     logo: {
-      src: "/logo-light.svg",
+      src: LOSTX_LOGO_LIGHT,
       alt: "LostX logo",
       title: "LostX",
       description: "Student Panel",

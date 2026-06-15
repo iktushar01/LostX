@@ -1,8 +1,9 @@
 import { SidebarData } from "@/types/sidebar";
+import { LOSTX_LOGO_LIGHT } from "@/components/shared/logo/logo";
 
 export const adminSidebar: SidebarData = {
   logo: {
-    src: "/logo-light.svg",
+    src: LOSTX_LOGO_LIGHT,
     alt: "LostX logo",
     title: "LostX",
     description: "Admin Panel",

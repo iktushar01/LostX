@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { HandHelping } from "lucide-react";
-import { ClaimForm } from "./ClaimForm";
+import { ClaimForm } from "@/components/claims/ClaimForm";
 
 interface ClaimItemDialogProps {
   foundItemId: string;
@@ -26,14 +26,14 @@ export function ClaimItemDialog({ foundItemId, itemTitle }: ClaimItemDialogProps
       <DialogTrigger asChild>
         <Button className="gap-2">
           <HandHelping className="h-4 w-4" />
-          Claim Item
+          Claim This Item
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Claim: {itemTitle}</DialogTitle>
           <DialogDescription>
-            Explain why this item belongs to you. An admin will review your claim.
+            Select your lost item report and answer the verification question. An admin will review your claim.
           </DialogDescription>
         </DialogHeader>
         <ClaimForm foundItemId={foundItemId} onSuccess={() => setOpen(false)} />

@@ -9,7 +9,8 @@ import { ClaimListFilters } from "@/types/lostx.types";
 export async function createClaimAction(formData: FormData) {
   const raw = {
     foundItemId: formData.get("foundItemId"),
-    message: formData.get("message"),
+    lostItemId: formData.get("lostItemId"),
+    answer: formData.get("answer"),
   };
 
   const parsed = createClaimSchema.safeParse(raw);
@@ -27,6 +28,7 @@ export async function createClaimAction(formData: FormData) {
     revalidatePath("/claims");
     revalidatePath(`/dashboard/found/${parsed.data.foundItemId}`);
     revalidatePath("/admin/claims");
+    revalidatePath("/dashboard");
 
     return {
       success: true,
@@ -38,10 +40,11 @@ export async function createClaimAction(formData: FormData) {
   }
 }
 
-export async function getMyClaimsAction() {
+export async function getMyClaimsAction(limit?: number) {
   try {
     const response = await claimService.listMine();
-    return { success: true, data: response.data };
+    const data = limit ? (response.data ?? []).slice(0, limit) : response.data;
+    return { success: true, data };
   } catch {
     return { success: false, data: [] };
   }
@@ -82,6 +85,7 @@ export async function updateClaimStatusAction(
     revalidatePath("/admin/claims");
     revalidatePath("/admin");
     revalidatePath("/claims");
+    revalidatePath("/dashboard");
     if (claimId) {
       revalidatePath(`/admin/claims/${claimId}`);
     }

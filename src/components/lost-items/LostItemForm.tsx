@@ -20,11 +20,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { createLostItemSchema, CreateLostItemInput } from "@/zod/lostx.validation";
 import { ITEM_CATEGORIES } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
+import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { createLostItemAction } from "@/actions/lostx/lost-item.actions";
 
 export function LostItemForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     register,
@@ -38,18 +41,35 @@ export function LostItemForm() {
       title: "",
       description: "",
       category: "OTHER",
-      imageUrl: "",
       location: "",
       dateLost: new Date().toISOString().split("T")[0],
+      verificationQuestion: "",
+      verificationAnswer: "",
     },
   });
 
   const category = watch("category");
 
+  const handleImageChange = (file: File | null) => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+  };
+
+  const clearImage = () => {
+    handleImageChange(null);
+  };
+
   const onSubmit = async (values: CreateLostItemInput) => {
     setSubmitting(true);
     const formData = new FormData();
-    Object.entries(values).forEach(([k, v]) => formData.append(k, String(v ?? "")));
+    Object.entries(values).forEach(([key, value]) => formData.append(key, String(value ?? "")));
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
 
     const result = await createLostItemAction(formData);
     setSubmitting(false);
@@ -108,9 +128,36 @@ export function LostItemForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="imageUrl">Image URL (optional)</Label>
-        <Input id="imageUrl" {...register("imageUrl")} placeholder="https://..." />
+        <Label htmlFor="verificationQuestion">Verification Question</Label>
+        <Input
+          id="verificationQuestion"
+          {...register("verificationQuestion")}
+          placeholder='e.g. "What is inside the wallet?"'
+        />
+        {errors.verificationQuestion && (
+          <p className="text-sm text-destructive">{errors.verificationQuestion.message}</p>
+        )}
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="verificationAnswer">Verification Answer</Label>
+        <Input
+          id="verificationAnswer"
+          type="password"
+          autoComplete="off"
+          {...register("verificationAnswer")}
+          placeholder="Answer only you would know (stored securely)"
+        />
+        {errors.verificationAnswer && (
+          <p className="text-sm text-destructive">{errors.verificationAnswer.message}</p>
+        )}
+      </div>
+
+      <ImageUploadField
+        previewUrl={imagePreview}
+        onFileChange={handleImageChange}
+        onClear={clearImage}
+      />
 
       <Button type="submit" disabled={submitting}>
         {submitting && <Spinner className="mr-2" />}

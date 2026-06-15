@@ -1,6 +1,6 @@
 import RegisterForm from "@/components/modules/auth/RegisterForm";
 
-export const maxDuration = 60; // Allow 60s for ImgBB upload
+export const maxDuration = 60;
 
 /**
  * LostX Auth Page
