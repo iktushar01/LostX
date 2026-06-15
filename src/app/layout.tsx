@@ -18,8 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Injentro",
-  description: "project starter for hackathons",
+  title: "LostX — University Lost & Found Platform",
+  description:
+    "AI-powered campus lost & found. Report, search, and recover belongings securely with LostX.",
 };
 
 export default function RootLayout({

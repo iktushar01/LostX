@@ -1,5 +1,5 @@
-import Footer from "@/components/modules/HomePage/footer";
-import Navbar from "@/components/modules/HomePage/navbar";
+import { LandingNavbar } from "@/components/landing/LandingNavbar";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export default function CommonLayout({
   children,
@@ -8,9 +8,9 @@ export default function CommonLayout({
 }>) {
   return (
     <>
-      <Navbar />
+      <LandingNavbar />
       {children}
-      <Footer />
+      <LandingFooter />
     </>
   );
 }

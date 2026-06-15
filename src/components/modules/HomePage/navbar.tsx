@@ -89,6 +89,18 @@ const Navbar = () => {
       <div className="container mx-auto flex h-14 items-center justify-between px-4 max-w-6xl">
         <Logo />
 
+        <div className="hidden items-center gap-1 md:flex">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/browse">Browse</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/lost">Lost</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/found">Found</Link>
+          </Button>
+        </div>
+
         <div className="flex items-center gap-2">
           <ModeToggle />
 

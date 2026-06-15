@@ -3,24 +3,24 @@ import { SidebarData } from "@/types/sidebar";
 export const adminSidebar: SidebarData = {
   logo: {
     src: "/logo.png",
-    alt: "Injentro logo",
-    title: "Injentro",
+    alt: "LostX logo",
+    title: "LostX",
     description: "Admin Panel",
   },
   navGroups: [
     {
       title: "Overview",
       items: [
-        { label: "Dashboard",      icon: "LayoutDashboard", href: "/admin/dashboard" },
+        { label: "Dashboard", icon: "LayoutDashboard", href: "/admin/dashboard" },
       ],
     },
-    // {
-    //   title: "Management",
-    //   items: [
-    //     { label: "Users",               icon: "Users",       href: "/dashboard/admin/users" },
-    //     { label: "Roles & Permissions", icon: "ShieldCheck", href: "/dashboard/admin/roles" },
-    //   ],
-    // },
+    {
+      title: "Lost & Found",
+        items: [
+        { label: "Browse", icon: "ClipboardList", href: "/browse" },
+        { label: "Claim Management", icon: "ShieldCheck", href: "/admin/claims" },
+      ],
+    },
     {
       title: "System",
       items: [
