@@ -21,10 +21,10 @@ export default async function BrowsePage() {
   }));
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="mx-auto max-w-7xl space-y-8">
       <PageHeader
-        title="Browse Lost & Found"
-        description="Search and filter items reported across campus."
+        title="Browse Items"
+        description="Search and filter all lost & found reports. Found something familiar? View details and submit a claim."
       />
       <BrowseContent lostItems={lostItems} foundItems={foundItems} />
     </div>

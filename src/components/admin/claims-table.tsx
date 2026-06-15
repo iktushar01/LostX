@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { Claim } from "@/types/lostx.types";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { formatLabel } from "@/components/shared/ItemBadges";
@@ -24,7 +24,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ClaimStatusBadge } from "./claim-status-badge";
-import { Search } from "lucide-react";
+import { ClaimTableActions } from "./claim-table-actions";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface ClaimsTableProps {
   claims: Claim[];
@@ -38,6 +40,8 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "APPROVED", label: "Approved" },
   { value: "REJECTED", label: "Rejected" },
 ];
+
+const PAGE_SIZE = 10;
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -57,6 +61,7 @@ export function ClaimsTable({
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState(initialSearch);
   const [status, setStatus] = useState(initialStatus || "all");
+  const [page, setPage] = useState(0);
 
   const applyFilters = useCallback(
     (nextSearch: string, nextStatus: string) => {
@@ -74,11 +79,18 @@ export function ClaimsTable({
         params.delete("status");
       }
 
+      setPage(0);
       startTransition(() => {
         router.push(`/admin/claims?${params.toString()}`);
       });
     },
     [router, searchParams],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(claims.length / PAGE_SIZE));
+  const paginatedClaims = useMemo(
+    () => claims.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+    [claims, page],
   );
 
   if (claims.length === 0 && !initialSearch && initialStatus === "all") {
@@ -93,7 +105,7 @@ export function ClaimsTable({
           onApply={() => applyFilters(search, status)}
         />
         <EmptyState
-          title="No claims have been submitted yet."
+          title="No Claims Submitted"
           description="When users submit ownership claims, they will appear here for review."
         />
       </div>
@@ -117,68 +129,88 @@ export function ClaimsTable({
           description="Try adjusting the search or status filter."
         />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Claim ID</TableHead>
-                <TableHead>Claimant</TableHead>
-                <TableHead>Found Item</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Verification</TableHead>
-                <TableHead>User Answer</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {claims.map((claim) => (
-                <TableRow key={claim.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell>
-                    <Link
-                      href={`/admin/claims/${claim.id}`}
-                      className="font-mono text-xs text-primary hover:underline"
-                    >
-                      {claim.id.slice(0, 8)}…
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/admin/claims/${claim.id}`} className="block">
-                      <p className="font-medium">{claim.user?.name ?? "—"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {claim.user?.email ?? "—"}
-                      </p>
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/admin/claims/${claim.id}`} className="font-medium hover:underline">
-                      {claim.foundItem?.title ?? "—"}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {claim.foundItem?.category
-                      ? formatLabel(claim.foundItem.category)
-                      : "—"}
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <p className="line-clamp-2 text-sm">
-                      {claim.lostItem?.verificationQuestion ?? "—"}
-                    </p>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <p className="line-clamp-2 text-sm">{claim.answer}</p>
-                  </TableCell>
-                  <TableCell>
-                    <ClaimStatusBadge status={claim.status} />
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {formatDate(claim.createdAt)}
-                  </TableCell>
+        <Card className="overflow-hidden border-slate-200/80 shadow-sm dark:border-slate-800">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50/80 hover:bg-slate-50/80 dark:bg-slate-900/50">
+                  <TableHead>Claimant</TableHead>
+                  <TableHead>Found Item</TableHead>
+                  <TableHead>Verification</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {paginatedClaims.map((claim) => (
+                  <TableRow key={claim.id} className="hover:bg-muted/30">
+                    <TableCell>
+                      <Link href={`/admin/claims/${claim.id}`} className="block">
+                        <p className="font-medium">{claim.user?.name ?? "—"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {claim.user?.email ?? "—"}
+                        </p>
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/admin/claims/${claim.id}`}
+                        className="font-medium hover:text-primary hover:underline"
+                      >
+                        {claim.foundItem?.title ?? "—"}
+                      </Link>
+                      {claim.foundItem?.category && (
+                        <p className="text-xs text-muted-foreground">
+                          {formatLabel(claim.foundItem.category)}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell className="max-w-[200px]">
+                      <p className="line-clamp-2 text-sm text-muted-foreground">
+                        {claim.lostItem?.verificationQuestion ?? "—"}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <ClaimStatusBadge status={claim.status} />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatDate(claim.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <ClaimTableActions claimId={claim.id} status={claim.status} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex items-center justify-between border-t px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, claims.length)} of{" "}
+              {claims.length}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 0}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
       )}
     </div>
   );
@@ -200,7 +232,7 @@ function ClaimsFilters({
   onApply: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-card p-4 shadow-sm sm:flex-row sm:items-center dark:border-slate-800">
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -208,11 +240,11 @@ function ClaimsFilters({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onApply()}
-          className="pl-9"
+          className="h-10 pl-9"
         />
       </div>
       <Select value={status} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-full sm:w-[180px]">
+        <SelectTrigger className="h-10 w-full sm:w-[180px]">
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
         <SelectContent>
@@ -223,7 +255,7 @@ function ClaimsFilters({
           ))}
         </SelectContent>
       </Select>
-      <Button onClick={onApply} disabled={isPending} className="sm:w-auto">
+      <Button onClick={onApply} disabled={isPending} className="h-10 sm:w-auto">
         {isPending ? "Loading..." : "Apply"}
       </Button>
     </div>
@@ -233,14 +265,10 @@ function ClaimsFilters({
 export function ClaimsTableSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="flex gap-3">
-        <div className="h-10 flex-1 animate-pulse rounded-md bg-muted" />
-        <div className="h-10 w-44 animate-pulse rounded-md bg-muted" />
-        <div className="h-10 w-24 animate-pulse rounded-md bg-muted" />
-      </div>
-      <div className="rounded-lg border">
+      <div className="h-20 animate-pulse rounded-2xl border bg-muted/40" />
+      <div className="rounded-xl border">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-14 animate-pulse border-b bg-muted/30 last:border-0" />
+          <div key={i} className="h-14 animate-pulse border-b bg-muted/20 last:border-0" />
         ))}
       </div>
     </div>

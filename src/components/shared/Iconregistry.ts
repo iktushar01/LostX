@@ -11,6 +11,10 @@ import {
   CalendarDays,
   MessageSquare,
   Heart,
+  Search,
+  PackageSearch,
+  HandHelping,
+  FileCheck,
   type LucideProps,
 } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
@@ -27,7 +31,11 @@ export type IconName =
   | "BookOpen"
   | "CalendarDays"
   | "MessageSquare"
-  | "Heart";
+  | "Heart"
+  | "Search"
+  | "PackageSearch"
+  | "HandHelping"
+  | "FileCheck";
 
 type LucideIcon = ForwardRefExoticComponent<
   Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
@@ -46,4 +54,8 @@ export const iconRegistry: Record<IconName, LucideIcon> = {
   CalendarDays,
   MessageSquare,
   Heart,
+  Search,
+  PackageSearch,
+  HandHelping,
+  FileCheck,
 };

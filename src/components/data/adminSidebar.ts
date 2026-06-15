@@ -6,25 +6,14 @@ export const adminSidebar: SidebarData = {
     src: LOSTX_LOGO_LIGHT,
     alt: "LostX logo",
     title: "LostX",
-    description: "Admin Panel",
+    description: "Admin",
   },
   navGroups: [
     {
-      title: "Overview",
+      title: "Admin",
       items: [
-        { label: "Dashboard", icon: "LayoutDashboard", href: "/admin" },
-      ],
-    },
-    {
-      title: "Lost & Found",
-        items: [
-        { label: "Browse", icon: "ClipboardList", href: "/browse" },
-        { label: "Claim Management", icon: "ShieldCheck", href: "/admin/claims" },
-      ],
-    },
-    {
-      title: "System",
-      items: [
+        { label: "Admin Dashboard", icon: "ShieldCheck", href: "/admin" },
+        { label: "Manage Claims", icon: "FileCheck", href: "/admin/claims" },
         { label: "Settings", icon: "Settings", href: "/admin/dashboard/settings" },
       ],
     },

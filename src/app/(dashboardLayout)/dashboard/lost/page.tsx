@@ -1,18 +1,27 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LostItemList } from "@/components/lost-items/LostItemList";
 import { getMyLostItemsAction } from "@/actions/lostx/lost-item.actions";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardLostPage() {
   const result = await getMyLostItemsAction(24);
 
   return (
-    <div className="p-6">
+    <div className="mx-auto max-w-7xl space-y-8">
       <PageHeader
         title="My Lost Items"
-        description="Your lost item reports."
-        actionLabel="Report Lost Item"
-        actionHref="/dashboard/lost/new"
-      />
+        description="Track everything you've reported as lost. Status updates as claims are reviewed."
+      >
+        <Button asChild>
+          <Link href="/dashboard/lost/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Report Lost Item
+          </Link>
+        </Button>
+      </PageHeader>
+
       <LostItemList items={result.data ?? []} />
     </div>
   );

@@ -39,10 +39,10 @@ export default async function AdminClaimsPage({ searchParams }: AdminClaimsPageP
   const { search, status } = await searchParams;
 
   return (
-    <div className="p-6">
+    <div className="mx-auto max-w-7xl space-y-8">
       <PageHeader
-        title="Claim Management"
-        description="Review ownership claims submitted by users."
+        title="Manage Claims"
+        description="Search, filter, and review ownership claims. Approve or reject directly from the table."
       />
       <Suspense fallback={<ClaimsTableSkeleton />}>
         <ClaimsContent search={search} status={status} />

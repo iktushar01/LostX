@@ -53,15 +53,22 @@ export function ClaimActions({
     <div className="flex flex-wrap gap-3">
       <Button
         variant="outline"
+        size="lg"
         disabled={loading !== null}
         onClick={() => handleAction("REJECTED")}
+        className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900 dark:hover:bg-red-950/30"
       >
         {loading === "REJECTED" && <Spinner className="mr-2" />}
-        Reject Claim
+        Reject
       </Button>
-      <Button disabled={loading !== null} onClick={() => handleAction("APPROVED")}>
+      <Button
+        size="lg"
+        disabled={loading !== null}
+        onClick={() => handleAction("APPROVED")}
+        className="bg-emerald-600 hover:bg-emerald-700"
+      >
         {loading === "APPROVED" && <Spinner className="mr-2" />}
-        Approve Claim
+        Approve
       </Button>
     </div>
   );

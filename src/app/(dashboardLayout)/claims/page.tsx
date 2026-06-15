@@ -1,17 +1,17 @@
 import { PageHeader } from "@/components/shared/PageHeader";
-import { ClaimsList } from "@/components/claims/ClaimsList";
+import { ClaimsGrid } from "@/components/claims/ClaimsGrid";
 import { getMyClaimsAction } from "@/actions/lostx/claim.actions";
 
 export default async function ClaimsPage() {
   const result = await getMyClaimsAction();
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="mx-auto max-w-7xl space-y-8">
       <PageHeader
         title="My Claims"
-        description="Track the status of your ownership claims."
+        description="Track ownership claims you've submitted. Each claim goes through review before recovery."
       />
-      <ClaimsList claims={result.data ?? []} />
+      <ClaimsGrid claims={result.data ?? []} />
     </div>
   );
 }

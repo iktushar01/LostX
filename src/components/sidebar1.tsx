@@ -1,23 +1,50 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/modules/dashboard/Sidebar";
+import { DashboardTopBar } from "@/components/layout/DashboardTopBar";
+import type { NotificationItem } from "@/components/layout/NotificationsMenu";
 import { getSidebarData } from "@/lib/getSidebarData";
 import { getCookie } from "@/lib/cookieUtils";
 import { getUserInfo } from "@/services/auth/auth.services";
+import { getMyClaimsAction } from "@/actions/lostx/claim.actions";
 import { UserFromCookie } from "@/types/auth.types";
 import { cn } from "@/lib/utils";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
+function buildNotifications(
+  claims: Awaited<ReturnType<typeof getMyClaimsAction>>["data"],
+): NotificationItem[] {
+  if (!claims) return [];
+
+  return claims
+    .filter((claim) => claim.status === "APPROVED" || claim.status === "PENDING")
+    .slice(0, 6)
+    .map((claim) => {
+      const itemTitle = claim.foundItem?.title ?? "your claim";
+      const date = new Date(claim.updatedAt ?? claim.createdAt).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
+
+      if (claim.status === "APPROVED") {
+        return {
+          id: claim.id,
+          title: "Claim approved",
+          description: `Your claim for ${itemTitle} was approved.`,
+          href: "/claims",
+          date,
+          kind: "claim-approved" as const,
+        };
+      }
+
+      return {
+        id: claim.id,
+        title: "Claim under review",
+        description: `Your claim for ${itemTitle} is awaiting admin review.`,
+        href: "/claims",
+        date,
+        kind: "claim-pending" as const,
+      };
+    });
+}
 
 interface Sidebar1Props {
   className?: string;
@@ -25,7 +52,6 @@ interface Sidebar1Props {
 }
 
 const Sidebar1 = async ({ className, children }: Sidebar1Props) => {
-  // Read user from cookie server-side
   const userCookie = await getCookie("user");
   let user: UserFromCookie | null = null;
 
@@ -60,37 +86,18 @@ const Sidebar1 = async ({ className, children }: Sidebar1Props) => {
   const userRole = user?.role ?? "CLIENT";
   const sidebarData = await getSidebarData(userRole as "ADMIN" | "CLIENT");
 
+  const claimsResult = await getMyClaimsAction();
+  const notifications = buildNotifications(claimsResult.data);
+
   return (
     <SidebarProvider className={cn(className)}>
       <AppSidebar data={sidebarData} user={user} />
 
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>
-                  {sidebarData.logo.description}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
-
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          {children ?? (
-            <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-          )}
-        </div>
+      <SidebarInset className="bg-slate-50/50 dark:bg-slate-950/50">
+        <DashboardTopBar notifications={notifications} />
+        <main className="flex flex-1 flex-col">
+          <div className="flex-1 p-4 md:p-6 lg:p-8">{children}</div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

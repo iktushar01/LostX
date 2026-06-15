@@ -16,20 +16,21 @@ import { ClaimForm } from "@/components/claims/ClaimForm";
 interface ClaimItemDialogProps {
   foundItemId: string;
   itemTitle: string;
+  size?: "default" | "lg";
 }
 
-export function ClaimItemDialog({ foundItemId, itemTitle }: ClaimItemDialogProps) {
+export function ClaimItemDialog({ foundItemId, itemTitle, size = "default" }: ClaimItemDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <HandHelping className="h-4 w-4" />
+        <Button className={size === "lg" ? "h-12 w-full gap-2 text-base font-semibold" : "gap-2"} size={size === "lg" ? "lg" : "default"}>
+          <HandHelping className="h-5 w-5" />
           Claim This Item
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Claim: {itemTitle}</DialogTitle>
           <DialogDescription>

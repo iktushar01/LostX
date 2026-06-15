@@ -1,29 +1,32 @@
 import Link from "next/link";
-import {
-  FileSearch,
-  HandHelping,
-  PackageSearch,
-  Search,
-} from "lucide-react";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { getCurrentUserAction } from "@/actions/_getCurrentUserAction";
 import { getDashboardStatsAction } from "@/actions/lostx/dashboard.actions";
 import { getMyLostItemsAction } from "@/actions/lostx/lost-item.actions";
 import { getMyFoundItemsAction } from "@/actions/lostx/found-item.actions";
 import { getMyClaimsAction } from "@/actions/lostx/claim.actions";
+import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
+import { QuickActionCards } from "@/components/dashboard/QuickActionCards";
 import { DashboardStatsCards } from "@/components/dashboard/DashboardStatsCards";
-import { DashboardSection } from "@/components/dashboard/DashboardSection";
+import { WorkflowGuide } from "@/components/dashboard/WorkflowGuide";
+import { ActivityTimeline } from "@/components/dashboard/ActivityTimeline";
 import { ItemCard } from "@/components/shared/ItemCard";
-import { ClaimsList } from "@/components/claims/ClaimsList";
+import { ClaimCard } from "@/components/claims/ClaimCard";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default async function DashboardPage() {
-  const [statsResult, lostResult, foundResult, claimsResult] = await Promise.all([
-    getDashboardStatsAction(),
-    getMyLostItemsAction(6),
-    getMyFoundItemsAction(6),
-    getMyClaimsAction(5),
-  ]);
+  const [userResult, statsResult, lostResult, foundResult, claimsResult, allLostResult] =
+    await Promise.all([
+      getCurrentUserAction(),
+      getDashboardStatsAction(),
+      getMyLostItemsAction(4),
+      getMyFoundItemsAction(4),
+      getMyClaimsAction(),
+      getMyLostItemsAction(50),
+    ]);
 
+  const userName = userResult.success && userResult.data ? userResult.data.name : "there";
   const stats = statsResult.data ?? {
     lostReports: 0,
     foundReports: 0,
@@ -32,32 +35,90 @@ export default async function DashboardPage() {
 
   const lostItems = lostResult.data ?? [];
   const foundItems = foundResult.data ?? [];
-  const claims = claimsResult.data ?? [];
+  const allClaims = claimsResult.data ?? [];
+  const claims = allClaims.slice(0, 4);
+  const allLost = allLostResult.data ?? [];
+
+  const pendingClaims = allClaims.filter((c) => c.status === "PENDING").length;
+  const recoveredItems = allLost.filter((i) => i.status === "RECOVERED").length;
 
   return (
-    <div className="space-y-8 p-6">
-      <PageHeader
-        title="Dashboard"
-        description="Overview of your lost & found activity."
+    <div className="mx-auto max-w-7xl space-y-8">
+      <WelcomeHeader name={userName} />
+
+      <QuickActionCards />
+
+      <DashboardStatsCards
+        stats={stats}
+        pendingClaims={pendingClaims}
+        recoveredItems={recoveredItems}
       />
 
-      <DashboardStatsCards stats={stats} />
+      <WorkflowGuide />
 
-      <DashboardSection
-        title="My Lost Items"
-        description="Items you have reported as lost."
-        icon={Search}
-        action={
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card className="border-slate-200/80 shadow-sm xl:col-span-2 dark:border-slate-800">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Your latest lost & found updates</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ActivityTimeline
+              lostItems={lostItems}
+              foundItems={foundItems}
+              claims={claims}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>My Claims</CardTitle>
+              <CardDescription>Recovery progress</CardDescription>
+            </div>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/claims">
+                View all
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {claims.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No claims yet. Browse found items to submit one.
+              </p>
+            ) : (
+              claims.slice(0, 3).map((claim) => <ClaimCard key={claim.id} claim={claim} />)
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">My Lost Items</h2>
+            <p className="text-sm text-muted-foreground">Items you reported as lost</p>
+          </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/lost/new">Report lost item</Link>
+            <Link href="/dashboard/lost">View all</Link>
           </Button>
-        }
-        viewAllHref="/dashboard/lost"
-      >
+        </div>
         {lostItems.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No lost items reported yet.</p>
+          <Card className="border-dashed">
+            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+              No lost items yet.{" "}
+              <Link href="/dashboard/lost/new" className="font-medium text-primary hover:underline">
+                Report one now
+              </Link>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {lostItems.map((item) => (
               <ItemCard
                 key={item.id}
@@ -74,23 +135,29 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
-      </DashboardSection>
+      </section>
 
-      <DashboardSection
-        title="My Found Items"
-        description="Items you have reported as found."
-        icon={PackageSearch}
-        action={
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">My Found Items</h2>
+            <p className="text-sm text-muted-foreground">Items you reported as found</p>
+          </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/found/new">Report found item</Link>
+            <Link href="/dashboard/found">View all</Link>
           </Button>
-        }
-        viewAllHref="/dashboard/found"
-      >
+        </div>
         {foundItems.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No found items reported yet.</p>
+          <Card className="border-dashed">
+            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+              No found items yet.{" "}
+              <Link href="/dashboard/found/new" className="font-medium text-primary hover:underline">
+                Report one now
+              </Link>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {foundItems.map((item) => (
               <ItemCard
                 key={item.id}
@@ -107,43 +174,7 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
-      </DashboardSection>
-
-      <DashboardSection
-        title="My Claims"
-        description="Ownership claims you have submitted."
-        icon={HandHelping}
-        action={
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/browse">Browse items</Link>
-          </Button>
-        }
-        viewAllHref="/claims"
-      >
-        {claims.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No claims submitted yet.</p>
-        ) : (
-          <ClaimsList claims={claims} />
-        )}
-      </DashboardSection>
-
-      <DashboardSection
-        title="Quick Actions"
-        description="Common tasks to get started."
-        icon={FileSearch}
-      >
-        <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/browse">Browse all items</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/lost/new">Report lost item</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/found/new">Report found item</Link>
-          </Button>
-        </div>
-      </DashboardSection>
+      </section>
     </div>
   );
 }

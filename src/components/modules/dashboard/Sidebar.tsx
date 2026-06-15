@@ -44,11 +44,19 @@ import { iconRegistry } from "@/components/shared/Iconregistry";
 import { UserFromCookie } from "@/types/auth.types";
 import { deleteCookie } from "cookies-next";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 type AppSidebarProps = {
   data: SidebarData;
   user: UserFromCookie | null;
 };
+
+function isNavActive(pathname: string, href: string) {
+  if (href === "/dashboard" || href === "/admin") {
+    return pathname === href;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export const AppSidebar = ({ data, user }: AppSidebarProps) => {
   const pathname = usePathname();
@@ -100,32 +108,34 @@ export const AppSidebar = ({ data, user }: AppSidebarProps) => {
       : "/dashboard/settings";
 
   return (
-    <Sidebar>
-      {/* Header: Logo */}
-      <SidebarHeader className="p-4">
+    <Sidebar className="border-r border-slate-200/80 dark:border-slate-800">
+      <SidebarHeader className="border-b border-slate-200/80 p-4 dark:border-slate-800">
         <SidebarLogo />
       </SidebarHeader>
 
-      <SidebarSeparator />
-
-      {/* Navigation groups */}
-      <SidebarContent>
+      <SidebarContent className="px-2 py-3">
         {data.navGroups.map((group) => (
           <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+            <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              {group.title}
+            </SidebarGroupLabel>
 
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const isActive = pathname === item.href;
+                  const isActive = isNavActive(pathname, item.href);
                   const Icon = iconRegistry[item.icon];
 
                   return (
-                    <SidebarMenuItem key={item.label}>
+                    <SidebarMenuItem key={`${group.title}-${item.label}`}>
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
                         tooltip={item.label}
+                        className={cn(
+                          "rounded-lg transition-colors",
+                          isActive && "bg-blue-500/10 font-medium text-blue-700 dark:text-blue-400",
+                        )}
                       >
                         <Link
                           href={item.href}
@@ -150,18 +160,17 @@ export const AppSidebar = ({ data, user }: AppSidebarProps) => {
 
       <SidebarSeparator />
 
-      {/* Footer: User info + dropdown */}
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="border-t border-slate-200/80 p-3 dark:border-slate-800">
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="w-full data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="w-full rounded-lg data-[state=open]:bg-sidebar-accent"
               >
-                <Avatar className="h-8 w-8 rounded-md">
+                <Avatar className="h-8 w-8 rounded-lg ring-2 ring-slate-100 dark:ring-slate-800">
                   <AvatarImage src={user.avatar ?? undefined} alt={user.name} />
-                  <AvatarFallback className="rounded-md text-xs">
+                  <AvatarFallback className="rounded-lg bg-blue-500/10 text-xs text-blue-700">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -186,9 +195,6 @@ export const AppSidebar = ({ data, user }: AppSidebarProps) => {
               <div className="px-2 py-1.5">
                 <p className="text-xs text-muted-foreground">Signed in as</p>
                 <p className="truncate text-sm font-medium">{user.email}</p>
-                <span className="mt-1 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {user.role}
-                </span>
               </div>
 
               <DropdownMenuSeparator />
@@ -220,38 +226,29 @@ export const AppSidebar = ({ data, user }: AppSidebarProps) => {
         )}
       </SidebarFooter>
 
-      {/* Clean & Centered Confirmation Dialog */}
       <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
-        <AlertDialogContent className="max-w-[400px] rounded-lg border border-border bg-background p-6 shadow-lg">
-          <AlertDialogHeader className="text-center sm:text-left space-y-1.5">
-            <AlertDialogTitle className="text-xl font-semibold tracking-tight">
-              Sign out now?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-muted-foreground leading-normal">
-              This will end your current session. Make sure you&apos;ve saved any in-progress work before continuing.
+        <AlertDialogContent className="max-w-[400px] rounded-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign out now?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will end your current session.
             </AlertDialogDescription>
           </AlertDialogHeader>
-
-          <AlertDialogFooter className="pt-2 sm:space-x-2">
-            <AlertDialogCancel
-              disabled={isLoggingOut}
-              className="rounded-md text-xs h-9"
-            >
-              Cancel
-            </AlertDialogCancel>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoggingOut}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(event) => {
                 event.preventDefault();
                 void handleLogout();
               }}
               disabled={isLoggingOut}
-              className="rounded-md bg-destructive text-xs h-9 text-destructive-foreground hover:bg-destructive/95 shadow-sm"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isLoggingOut ? (
-                <div className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1.5">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span>Signing out...</span>
-                </div>
+                  Signing out...
+                </span>
               ) : (
                 "Sign out"
               )}

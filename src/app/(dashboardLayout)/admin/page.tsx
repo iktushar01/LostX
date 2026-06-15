@@ -1,21 +1,23 @@
 import Link from "next/link";
 import { getAdminStatsAction } from "@/actions/lostx/admin.actions";
-import { PageHeader } from "@/components/shared/PageHeader";
 import { StatsCards } from "@/components/admin/stats-cards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, ArrowRight, FileCheck } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const result = await getAdminStatsAction();
 
   return (
-    <div className="space-y-6 p-6">
-      <PageHeader
-        title="Admin Dashboard"
-        description="Quick overview of LostX platform activity."
-      />
+    <div className="mx-auto max-w-7xl space-y-8">
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Admin Panel</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Admin Dashboard</h1>
+        <p className="text-sm text-muted-foreground sm:text-base">
+          Platform overview and claim review queue.
+        </p>
+      </div>
 
       {!result.success || !result.data ? (
         <Alert variant="destructive">
@@ -28,22 +30,43 @@ export default async function AdminDashboardPage() {
         <StatsCards stats={result.data} />
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" />
-            Claim Review
-          </CardTitle>
-          <CardDescription>
-            Review and approve ownership claims from users.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild>
-            <Link href="/admin/claims">Go to Claim Management</Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-blue-600" />
+              Claim Review Queue
+            </CardTitle>
+            <CardDescription>
+              Review ownership claims, compare verification answers, and approve or reject.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/admin/claims">
+                Manage Claims
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileCheck className="h-5 w-5 text-emerald-600" />
+              Review Workflow
+            </CardTitle>
+            <CardDescription>How admin review fits into LostX</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <p>1. User submits claim with verification answer</p>
+            <p>2. Admin compares expected vs submitted answer</p>
+            <p>3. Approve → item marked claimed, lost item recovered</p>
+            <p>4. Reject → user notified, item stays available</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
