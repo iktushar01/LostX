@@ -1,17 +1,12 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import Logo from "@/components/shared/logo/logo";
 
 export function LandingFooter() {
   return (
     <footer className="border-t border-border/50 bg-muted/20">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
-              <Sparkles className="h-3.5 w-3.5" />
-            </span>
-            <span className="font-bold">LostX</span>
-          </Link>
+          <Logo />
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
             AI-powered university lost & found platform.
           </p>

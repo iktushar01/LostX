@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
-Injentro Coming Soon
+# LostX Client
 
->>>>>>> d5637edca5321b380947b2779d9f0789c890258e
+University lost & found platform — report, search, and recover campus belongings.

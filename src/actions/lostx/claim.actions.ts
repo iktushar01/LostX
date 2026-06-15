@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { claimService } from "@/services/lostx/claim.service";
 import { createClaimSchema } from "@/zod/lostx.validation";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
+import { ClaimListFilters } from "@/types/lostx.types";
 
 export async function createClaimAction(formData: FormData) {
   const raw = {
@@ -46,12 +47,28 @@ export async function getMyClaimsAction() {
   }
 }
 
-export async function getAllClaimsAction() {
+export async function getAllClaimsAction(filters?: ClaimListFilters) {
   try {
-    const response = await claimService.listAll();
+    const response = await claimService.listAll(filters);
     return { success: true, data: response.data };
-  } catch {
-    return { success: false, data: [] };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      data: [],
+      message: getApiErrorMessage(error, "Failed to load claims"),
+    };
+  }
+}
+
+export async function getClaimByIdAction(claimId: string) {
+  try {
+    const response = await claimService.getById(claimId);
+    return { success: true, data: response.data };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getApiErrorMessage(error, "Claim not found"),
+    };
   }
 }
 
@@ -63,7 +80,11 @@ export async function updateClaimStatusAction(
     const response = await claimService.updateStatus(claimId, status);
 
     revalidatePath("/admin/claims");
+    revalidatePath("/admin");
     revalidatePath("/claims");
+    if (claimId) {
+      revalidatePath(`/admin/claims/${claimId}`);
+    }
 
     return {
       success: true,

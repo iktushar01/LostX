@@ -1,7 +1,5 @@
-import AdminDashboardHome from "@/components/modules/adminDashboardPages/adminDashboardHome";
+import { redirect } from "next/navigation";
 
-const AdminDashboardPage = () => {
-    return <AdminDashboardHome />;
-};
-
-export default AdminDashboardPage;
+export default function AdminDashboardRedirect() {
+  redirect("/admin");
+}

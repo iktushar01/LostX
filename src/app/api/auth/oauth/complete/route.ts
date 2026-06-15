@@ -1,4 +1,5 @@
-import { getDefaultDashboardRoute, isValidRedirectForRole, UserRole } from "@/lib/authUtils";
+import { getDefaultDashboardRoute, isValidRedirectForRole } from "@/lib/authUtils";
+import { normalizeUserRole } from "@/lib/roleMapping";
 import { setCookie } from "@/lib/cookieUtils";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -35,7 +36,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const normalizedRole = body.user.role.toUpperCase() as UserRole;
+  const normalizedRole = normalizeUserRole(body.user.role);
+
+  if (!normalizedRole) {
+    return NextResponse.json(
+      { success: false, message: "Unrecognized user role" },
+      { status: 400 },
+    );
+  }
+
   const targetPath =
     body.redirectPath && isValidRedirectForRole(body.redirectPath, normalizedRole)
       ? body.redirectPath

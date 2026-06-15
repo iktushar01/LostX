@@ -3,7 +3,7 @@ import { SidebarData } from "@/types/sidebar";
 export const getClientSidebarData = async (): Promise<SidebarData> => {
   return {
     logo: {
-      src: "/logo.png",
+      src: "/logo-light.svg",
       alt: "LostX logo",
       title: "LostX",
       description: "Student Panel",

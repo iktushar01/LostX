@@ -13,6 +13,7 @@ import { Eye, EyeOff, Lock, Mail, ChevronLeft, User, Camera, X } from "lucide-re
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef } from "react";
+import Logo from "@/components/shared/logo/logo";
 
 const RegisterForm = () => {
   const [serverError, setServerError] = useState<string | null>(null);
@@ -84,6 +85,9 @@ const RegisterForm = () => {
 
       {/* Strictly Clean & Centered Container */}
       <div className="w-full max-w-[360px] space-y-6">
+        <div className="flex justify-center">
+          <Logo />
+        </div>
         <div className="space-y-1.5 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">Create an Account</h1>
           <p className="text-sm text-muted-foreground">Get started by filling out your profile details</p>

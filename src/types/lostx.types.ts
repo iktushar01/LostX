@@ -69,3 +69,17 @@ export interface BrowseFilters {
   category?: ItemCategory | "";
   type?: "all" | "lost" | "found";
 }
+
+export interface AdminStats {
+  totalLostItems: number;
+  totalFoundItems: number;
+  totalClaims: number;
+  pendingClaims: number;
+  approvedClaims: number;
+  recoveredItems: number;
+}
+
+export interface ClaimListFilters {
+  search?: string;
+  status?: ClaimStatus | "";
+}

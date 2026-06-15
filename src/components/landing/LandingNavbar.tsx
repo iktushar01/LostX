@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/shared/modeToggle";
+import Logo from "@/components/shared/logo/logo";
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -35,12 +36,7 @@ export function LandingNavbar() {
       )}
     >
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="group flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 transition-transform group-hover:scale-105">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <span className="text-lg font-bold tracking-tight">LostX</span>
-        </Link>
+        <Logo className="transition-transform hover:scale-[1.02]" />
 
         <div className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (

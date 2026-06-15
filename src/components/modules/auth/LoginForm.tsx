@@ -12,6 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, Lock, Mail, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import Logo from "@/components/shared/logo/logo";
 
 interface LoginFormProps {
   redirectPath?: string;
@@ -57,6 +58,9 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
 
       {/* Strictly Clean & Centered Container */}
       <div className="w-full max-w-[360px] space-y-6">
+        <div className="flex justify-center">
+          <Logo />
+        </div>
         <div className="space-y-1.5 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">Sign In</h1>
           <p className="text-sm text-muted-foreground">Enter your credentials to access your account</p>

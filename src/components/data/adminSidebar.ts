@@ -2,7 +2,7 @@ import { SidebarData } from "@/types/sidebar";
 
 export const adminSidebar: SidebarData = {
   logo: {
-    src: "/logo.png",
+    src: "/logo-light.svg",
     alt: "LostX logo",
     title: "LostX",
     description: "Admin Panel",
@@ -11,7 +11,7 @@ export const adminSidebar: SidebarData = {
     {
       title: "Overview",
       items: [
-        { label: "Dashboard", icon: "LayoutDashboard", href: "/admin/dashboard" },
+        { label: "Dashboard", icon: "LayoutDashboard", href: "/admin" },
       ],
     },
     {

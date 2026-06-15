@@ -5,7 +5,7 @@ interface LoginParams {
 }
 
 /**
- * Injentro Auth Page
+ * LostX Auth Page
  * This server component unwraps searchParams and passes the 
  * redirect destination to the Client-side LoginForm.
  */

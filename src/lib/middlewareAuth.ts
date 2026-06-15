@@ -1,5 +1,5 @@
 import type { JwtPayload } from "jsonwebtoken";
-import type { UserRole } from "./authUtils";
+import { normalizeUserRole } from "./roleMapping";
 
 const base64UrlToUint8Array = (base64Url: string): Uint8Array => {
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -92,25 +92,7 @@ export const isTokenExpiringSoon = (
     return remainingSeconds > 0 && remainingSeconds <= thresholdInSeconds;
 };
 
-export const normalizeUserRole = (
-    role: string | undefined | null,
-): UserRole | null => {
-    if (!role) {
-        return null;
-    }
-
-    const normalizedRole = role.toUpperCase();
-
-    if (normalizedRole === "SUPER_ADMIN" || normalizedRole === "ADMIN") {
-        return "ADMIN";
-    }
-
-    if (normalizedRole === "CLIENT") {
-        return "CLIENT";
-    }
-
-    return null;
-};
+export { normalizeUserRole } from "./roleMapping";
 
 export const getAccessTokenSecret = (): string | undefined =>
     process.env.ACCESS_TOKEN_SECRET ?? process.env.JWT_ACCESS_SECRET;

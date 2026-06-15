@@ -1,19 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { cn } from "@/lib/utils";
 
-const Logo = () => {
-  return (
-    <Link href="/" className="flex items-center gap-2">
-      <Image
-        src="/logo.png"
-        alt="Logo"
-        width={120}
-        height={32}
-        className="rounded-md"
-        priority
+interface LogoProps {
+  href?: string;
+  className?: string;
+  height?: number;
+}
+
+const Logo = ({ href = "/", className, height = 32 }: LogoProps) => {
+  const content = (
+    <span className={cn("inline-flex items-center", className)}>
+      <img
+        src="/logo-light.svg"
+        alt="LostX"
+        height={height}
+        className="block w-auto dark:hidden"
       />
+      <img
+        src="/logo-dark.svg"
+        alt="LostX"
+        height={height}
+        className="hidden w-auto dark:block"
+      />
+    </span>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link href={href} className="inline-flex items-center">
+      {content}
     </Link>
   );
 };

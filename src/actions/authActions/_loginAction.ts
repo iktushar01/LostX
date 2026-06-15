@@ -4,8 +4,8 @@
 import {
   getDefaultDashboardRoute,
   isValidRedirectForRole,
-  UserRole,
 } from "@/lib/authUtils";
+import { normalizeUserRole } from "@/lib/roleMapping";
 import { httpClient } from "@/lib/axios/httpClient";
 import { setTokenInCookies } from "@/lib/tokenUtils";
 import { setCookie } from "@/lib/cookieUtils";
@@ -47,10 +47,15 @@ export const loginAction = async (
       email,
     } = user;
 
-    // ✅ Normalize role (very important)
-    const normalizedRole = role.toUpperCase() as UserRole;
+    const normalizedRole = normalizeUserRole(role);
 
-    // ✅ Set cookies
+    if (!normalizedRole) {
+      return {
+        success: false,
+        message: "Login failed: unrecognized user role",
+      };
+    }
+
     await setTokenInCookies("accessToken", accessToken);
     await setTokenInCookies("refreshToken", refreshToken);
     await setTokenInCookies(
@@ -58,7 +63,12 @@ export const loginAction = async (
       token,
       24 * 60 * 60
     );
-    await setCookie("user", JSON.stringify(user), 7 * 24 * 60 * 60, false);
+    await setCookie(
+      "user",
+      JSON.stringify({ ...user, role: normalizedRole }),
+      7 * 24 * 60 * 60,
+      false,
+    );
 
     // 🔐 Force password change
     if (needPasswordChange) {
@@ -71,10 +81,6 @@ export const loginAction = async (
       isValidRedirectForRole(redirectPath, normalizedRole)
         ? redirectPath
         : getDefaultDashboardRoute(normalizedRole);
-
-    // 🧠 Debug (remove later)
-    console.log("ROLE:", normalizedRole);
-    console.log("REDIRECTING TO:", targetPath);
 
     redirect(targetPath);
   } catch (error: any) {
@@ -90,9 +96,11 @@ export const loginAction = async (
     }
 
     // 📩 Email not verified
+    const apiMessage =
+      error?.response?.data?.message?.toLowerCase?.() ?? "";
     if (
-      error?.response?.data?.message ===
-      "Email not verified"
+      apiMessage.includes("email not verified") ||
+      apiMessage.includes("verify")
     ) {
       redirect(`/verify-email?email=${payload.email}`);
     }

@@ -1,6 +1,7 @@
 "use server";
 
 import { setCookie } from "@/lib/cookieUtils";
+import { normalizeUserRole } from "@/lib/roleMapping";
 import { getUserInfo } from "@/services/auth/auth.services";
 import { UserFromCookie } from "@/types/auth.types";
 
@@ -23,11 +24,13 @@ const mapUserToCookieShape = (user: {
     user.admin?.profilePhoto ??
     null;
 
+  const normalizedRole = normalizeUserRole(user.role);
+
   return {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role,
+    role: normalizedRole ?? user.role,
     status: user.status,
     emailVerified: user.emailVerified,
     needPasswordChange: user.needPasswordChange,
