@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { verifyEmailAction } from "@/actions/authActions/_verifyEmailAction";
+import { resendVerificationOtpAction } from "@/actions/authActions/_resendVerificationOtpAction";
 
 const VerifyEmailForm = () => {
   const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ const VerifyEmailForm = () => {
   // States
   const [otp, setOtp] = useState("");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(900); // 15 minutes in seconds
   const [isResending, setIsResending] = useState(false);
 
@@ -53,6 +55,7 @@ const VerifyEmailForm = () => {
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
+    setSuccessMessage(null);
 
     if (timeLeft <= 0) {
       setServerError("OTP has expired. Please request a new one.");
@@ -73,16 +76,25 @@ const VerifyEmailForm = () => {
   };
 
   const handleResendOtp = async () => {
+    if (email === "your email") {
+      setServerError("Missing email address. Please register again.");
+      return;
+    }
+
     setIsResending(true);
     setServerError(null);
     try {
-      // Logic for resending OTP would go here (calling a server action)
-      // await resendOtpAction(email); 
-      
-      setTimeLeft(900); // Reset timer to 15 mins
-      setOtp(""); // Clear input
-      console.log("New OTP sent to:", email);
-    } catch (error: any) {
+      const result = await resendVerificationOtpAction({ email });
+
+      if (!result?.success) {
+        setServerError(result?.message || "Failed to resend. Please try again.");
+        return;
+      }
+
+      setTimeLeft(900);
+      setOtp("");
+      setSuccessMessage("A new verification code was sent. Check your inbox.");
+    } catch {
       setServerError("Failed to resend. Please try again.");
     } finally {
       setIsResending(false);
@@ -141,6 +153,12 @@ const VerifyEmailForm = () => {
             </div>
           </div>
 
+          {successMessage && (
+            <Alert className="rounded-md py-2.5">
+              <AlertDescription className="text-xs">{successMessage}</AlertDescription>
+            </Alert>
+          )}
+
           {serverError && (
             <Alert variant="destructive" className="rounded-md py-2.5">
               <AlertDescription className="text-xs">{serverError}</AlertDescription>
@@ -168,7 +186,7 @@ const VerifyEmailForm = () => {
             size="sm"
             className="w-full gap-2 text-xs h-9"
             onClick={handleResendOtp}
-            disabled={isResending || isPending || (timeLeft > 840)}
+            disabled={isResending || isPending || timeLeft > 840}
           >
             <RefreshCw className={`h-3 w-3 ${isResending ? "animate-spin" : ""}`} />
             {isResending ? "Requesting..." : "Resend code"}

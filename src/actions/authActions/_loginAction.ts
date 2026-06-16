@@ -96,13 +96,15 @@ export const loginAction = async (
     }
 
     // 📩 Email not verified
+    const status = error?.response?.status;
     const apiMessage =
       error?.response?.data?.message?.toLowerCase?.() ?? "";
     if (
+      status === 403 ||
       apiMessage.includes("email not verified") ||
       apiMessage.includes("verify")
     ) {
-      redirect(`/verify-email?email=${payload.email}`);
+      redirect(`/verify-email?email=${encodeURIComponent(payload.email)}`);
     }
 
     // ❌ Real error only
@@ -110,7 +112,9 @@ export const loginAction = async (
 
     return {
       success: false,
-      message: `Login failed: ${error.message}`,
+      message:
+        error?.response?.data?.message ||
+        `Login failed: ${error.message}`,
     };
   }
 };
