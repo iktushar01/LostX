@@ -1,5 +1,5 @@
 import { httpClient } from "@/lib/axios/httpClient";
-import { Claim, ClaimListFilters } from "@/types/lostx.types";
+import { Claim, ClaimListFilters, ClaimMessage } from "@/types/lostx.types";
 
 export const claimService = {
   create: (data: { foundItemId: string; lostItemId: string; answer: string }) =>
@@ -19,4 +19,9 @@ export const claimService = {
 
   updateStatus: (id: string, status: "APPROVED" | "REJECTED") =>
     httpClient.patch<Claim>(`/claims/${id}/status`, { status }),
+
+  listMessages: (claimId: string) => httpClient.get<ClaimMessage[]>(`/claims/${claimId}/messages`),
+
+  sendMessage: (claimId: string, content: string) =>
+    httpClient.post<ClaimMessage>(`/claims/${claimId}/messages`, { content }),
 };

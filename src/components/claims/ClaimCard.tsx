@@ -91,7 +91,7 @@ export function ClaimCard({ claim }: ClaimCardProps) {
         </div>
 
         <Button variant="outline" size="sm" className="mt-5 w-full" asChild>
-          <Link href={`/dashboard/found/${claim.foundItemId}`}>View Item</Link>
+          <Link href={`/claims/${claim.id}`}>View Claim</Link>
         </Button>
       </CardContent>
     </Card>

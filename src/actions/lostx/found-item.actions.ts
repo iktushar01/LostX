@@ -90,3 +90,58 @@ export async function deleteFoundItemAction(id: string) {
     return { success: false, message: getApiErrorMessage(error, "Failed to delete found item") };
   }
 }
+
+export async function markFoundItemReturnedAction(id: string) {
+  try {
+    const response = await foundItemService.markReturned(id);
+    revalidatePath(`/dashboard/found/${id}`);
+    revalidatePath("/dashboard/found");
+    revalidatePath("/dashboard");
+    revalidatePath("/browse");
+    revalidatePath("/claims");
+    return { success: true, message: response.message, data: response.data };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getApiErrorMessage(error, "Failed to mark item as returned"),
+    };
+  }
+}
+
+export async function updateFoundItemAction(id: string, formData: FormData) {
+  const raw = {
+    title: formData.get("title"),
+    description: formData.get("description"),
+    category: formData.get("category"),
+    location: formData.get("location"),
+    dateFound: formData.get("dateFound"),
+  };
+
+  const parsed = createFoundItemSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? "Validation failed",
+    };
+  }
+
+  try {
+    const payload = new FormData();
+    Object.entries(parsed.data).forEach(([key, value]) => payload.append(key, String(value ?? "")));
+
+    const image = formData.get("image");
+    if (image instanceof File && image.size > 0) {
+      payload.append("image", image);
+    }
+
+    const response = await foundItemService.update(id, payload);
+    revalidatePath(`/dashboard/found/${id}`);
+    revalidatePath("/dashboard/found");
+    revalidatePath("/dashboard");
+    revalidatePath("/browse");
+    return { success: true, message: response.message, data: response.data };
+  } catch (error: unknown) {
+    return { success: false, message: getApiErrorMessage(error, "Failed to update found item") };
+  }
+}

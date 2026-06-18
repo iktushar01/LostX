@@ -34,6 +34,7 @@ export function FoundItemList({ items }: FoundItemListProps) {
           date={item.dateFound}
           status={item.status}
           imageUrl={item.imageUrl}
+          isFeatured={item.isFeatured}
         />
       ))}
     </div>

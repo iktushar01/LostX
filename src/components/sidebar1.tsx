@@ -4,10 +4,12 @@ import type { NotificationItem } from "@/components/layout/NotificationsMenu";
 import { getSidebarData } from "@/lib/getSidebarData";
 import { getCookie } from "@/lib/cookieUtils";
 import { getUserInfo } from "@/services/auth/auth.services";
+import { getNotificationsAction } from "@/actions/lostx/notification.actions";
 import { getMyClaimsAction } from "@/actions/lostx/claim.actions";
 import { UserFromCookie } from "@/types/auth.types";
 import { cn } from "@/lib/utils";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { ChatWidget } from "@/components/chatbot/ChatWidget";
 
 function buildNotifications(
   claims: Awaited<ReturnType<typeof getMyClaimsAction>>["data"],
@@ -86,8 +88,15 @@ const Sidebar1 = async ({ className, children }: Sidebar1Props) => {
   const userRole = user?.role ?? "CLIENT";
   const sidebarData = await getSidebarData(userRole as "ADMIN" | "CLIENT");
 
-  const claimsResult = await getMyClaimsAction();
-  const notifications = buildNotifications(claimsResult.data);
+  const [notificationsResult, claimsResult] = await Promise.all([
+    getNotificationsAction(),
+    getMyClaimsAction(),
+  ]);
+
+  const notifications =
+    notificationsResult.data && notificationsResult.data.length > 0
+      ? notificationsResult.data
+      : buildNotifications(claimsResult.data);
 
   return (
     <SidebarProvider className={cn(className)}>
@@ -98,6 +107,7 @@ const Sidebar1 = async ({ className, children }: Sidebar1Props) => {
         <main className="flex flex-1 flex-col">
           <div className="flex-1 p-4 md:p-6 lg:p-8">{children}</div>
         </main>
+        <ChatWidget />
       </SidebarInset>
     </SidebarProvider>
   );

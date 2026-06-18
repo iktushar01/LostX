@@ -1,6 +1,6 @@
 import { httpClient } from "@/lib/axios/httpClient";
 import { ApiResponse } from "@/types/api.types";
-import { LostItem, LostItemForClaim } from "@/types/lostx.types";
+import { LostItem, LostItemDetail, LostItemForClaim } from "@/types/lostx.types";
 
 export const lostItemService = {
   list: (params?: Record<string, unknown>) =>
@@ -13,10 +13,13 @@ export const lostItemService = {
     httpClient.get<LostItemForClaim[]>("/lost-items/mine/for-claim"),
 
   getById: (id: string) =>
-    httpClient.get<LostItem>(`/lost-items/${id}`),
+    httpClient.get<LostItemDetail>(`/lost-items/${id}`),
 
   create: (data: FormData) =>
     httpClient.post<LostItem>("/lost-items", data),
+
+  update: (id: string, data: FormData) =>
+    httpClient.patch<LostItemDetail>(`/lost-items/${id}`, data),
 
   delete: (id: string) =>
     httpClient.delete<{ id: string }>(`/lost-items/${id}`),

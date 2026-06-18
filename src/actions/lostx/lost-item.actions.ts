@@ -103,3 +103,43 @@ export async function deleteLostItemAction(id: string) {
     return { success: false, message: getApiErrorMessage(error, "Failed to delete lost item") };
   }
 }
+
+export async function updateLostItemAction(id: string, formData: FormData) {
+  const raw = {
+    title: formData.get("title"),
+    description: formData.get("description"),
+    category: formData.get("category"),
+    location: formData.get("location"),
+    dateLost: formData.get("dateLost"),
+    verificationQuestion: formData.get("verificationQuestion"),
+    verificationAnswer: formData.get("verificationAnswer"),
+  };
+
+  const parsed = createLostItemSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? "Validation failed",
+    };
+  }
+
+  try {
+    const payload = new FormData();
+    Object.entries(parsed.data).forEach(([key, value]) => payload.append(key, String(value ?? "")));
+
+    const image = formData.get("image");
+    if (image instanceof File && image.size > 0) {
+      payload.append("image", image);
+    }
+
+    const response = await lostItemService.update(id, payload);
+    revalidatePath(`/dashboard/lost/${id}`);
+    revalidatePath("/dashboard/lost");
+    revalidatePath("/dashboard");
+    revalidatePath("/browse");
+    return { success: true, message: response.message, data: response.data };
+  } catch (error: unknown) {
+    return { success: false, message: getApiErrorMessage(error, "Failed to update lost item") };
+  }
+}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, ImageIcon } from "lucide-react";
+import { Calendar, MapPin, ImageIcon, Star } from "lucide-react";
 import { CategoryBadge, StatusBadge, TypeBadge } from "./ItemBadges";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ interface ItemCardProps {
   date: string;
   status: string;
   imageUrl?: string | null;
+  isFeatured?: boolean;
   href?: string;
   showAction?: boolean;
 }
@@ -29,6 +30,7 @@ export function ItemCard({
   date,
   status,
   imageUrl,
+  isFeatured = false,
   href,
   showAction = true,
 }: ItemCardProps) {
@@ -58,6 +60,12 @@ export function ItemCard({
           <div className="absolute left-3 top-3">
             <TypeBadge type={type} />
           </div>
+          {isFeatured ? (
+            <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-1 text-[11px] font-medium text-white">
+              <Star className="h-3 w-3 fill-current" />
+              Featured
+            </div>
+          ) : null}
         </div>
       </Link>
 

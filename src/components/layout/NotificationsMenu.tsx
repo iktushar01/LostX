@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, CheckCircle2, Clock, HandHelping, PackageSearch } from "lucide-react";
+import { Bell, CheckCircle2, Clock, HandHelping, PackageSearch, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,12 +16,13 @@ export type NotificationItem = {
   description: string;
   href: string;
   date: string;
-  kind: "claim-approved" | "claim-pending" | "found" | "recovered";
+  kind: "claim-approved" | "claim-pending" | "claim-rejected" | "found" | "recovered";
 };
 
 const kindConfig = {
   "claim-approved": { icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400" },
   "claim-pending": { icon: Clock, color: "text-amber-600 dark:text-amber-400" },
+  "claim-rejected": { icon: XCircle, color: "text-rose-600 dark:text-rose-400" },
   found: { icon: PackageSearch, color: "text-blue-600 dark:text-blue-400" },
   recovered: { icon: HandHelping, color: "text-violet-600 dark:text-violet-400" },
 };

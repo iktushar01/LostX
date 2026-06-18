@@ -99,3 +99,30 @@ export async function updateClaimStatusAction(
     return { success: false, message: getApiErrorMessage(error, "Failed to update claim") };
   }
 }
+
+export async function getClaimMessagesAction(claimId: string) {
+  try {
+    const response = await claimService.listMessages(claimId);
+    return { success: true, data: response.data ?? [] };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      data: [],
+      message: getApiErrorMessage(error, "Failed to load messages"),
+    };
+  }
+}
+
+export async function sendClaimMessageAction(claimId: string, content: string) {
+  try {
+    const response = await claimService.sendMessage(claimId, content);
+    revalidatePath(`/claims/${claimId}`);
+    revalidatePath(`/admin/claims/${claimId}`);
+    return { success: true, data: response.data, message: response.message };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getApiErrorMessage(error, "Failed to send message"),
+    };
+  }
+}

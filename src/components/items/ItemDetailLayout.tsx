@@ -19,6 +19,7 @@ interface ItemDetailLayoutProps {
   backHref: string;
   actions?: React.ReactNode;
   primaryCta?: React.ReactNode;
+  aside?: React.ReactNode;
 }
 
 export function ItemDetailLayout({
@@ -35,6 +36,7 @@ export function ItemDetailLayout({
   backHref,
   actions,
   primaryCta,
+  aside,
 }: ItemDetailLayoutProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -118,6 +120,8 @@ export function ItemDetailLayout({
 
           {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
         </div>
+
+        {aside && <div className="lg:col-span-2">{aside}</div>}
       </div>
     </div>
   );

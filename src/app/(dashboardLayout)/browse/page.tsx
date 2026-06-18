@@ -2,12 +2,14 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { BrowseContent } from "@/components/browse/BrowseContent";
 import { getLostItemsAction } from "@/actions/lostx/lost-item.actions";
 import { getFoundItemsAction } from "@/actions/lostx/found-item.actions";
+import { getBrowseMatchSuggestionsAction } from "@/actions/lostx/match.actions";
 import { BrowseItem } from "@/types/lostx.types";
 
 export default async function BrowsePage() {
-  const [lostResult, foundResult] = await Promise.all([
+  const [lostResult, foundResult, matchResult] = await Promise.all([
     getLostItemsAction({ limit: 100 }),
     getFoundItemsAction({ limit: 100 }),
+    getBrowseMatchSuggestionsAction(),
   ]);
 
   const lostItems: BrowseItem[] = (lostResult.data ?? []).map((item) => ({
@@ -26,7 +28,11 @@ export default async function BrowsePage() {
         title="Browse Items"
         description="Search and filter all lost & found reports. Found something familiar? View details and submit a claim."
       />
-      <BrowseContent lostItems={lostItems} foundItems={foundItems} />
+      <BrowseContent
+        lostItems={lostItems}
+        foundItems={foundItems}
+        matchSuggestions={matchResult.data}
+      />
     </div>
   );
 }

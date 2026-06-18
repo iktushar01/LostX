@@ -14,6 +14,7 @@ export const adminSidebar: SidebarData = {
       items: [
         { label: "Admin Dashboard", icon: "ShieldCheck", href: "/admin" },
         { label: "Manage Claims", icon: "FileCheck", href: "/admin/claims" },
+        { label: "Manage Items", icon: "PackageSearch", href: "/admin/items" },
         { label: "Settings", icon: "Settings", href: "/admin/dashboard/settings" },
       ],
     },

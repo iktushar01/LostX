@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,18 +17,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { createLostItemSchema, CreateLostItemInput } from "@/zod/lostx.validation";
-import { ITEM_CATEGORIES } from "@/types/lostx.types";
+import { createFoundItemSchema, CreateFoundItemInput } from "@/zod/lostx.validation";
+import { FoundItemDetail, ITEM_CATEGORIES } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
 import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { CampusLocationPicker } from "@/components/shared/CampusLocationPicker";
-import { createLostItemAction } from "@/actions/lostx/lost-item.actions";
+import { updateFoundItemAction } from "@/actions/lostx/found-item.actions";
 
-export function LostItemForm() {
+interface EditFoundItemFormProps {
+  item: FoundItemDetail;
+}
+
+export function EditFoundItemForm({ item }: EditFoundItemFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(item.imageUrl ?? null);
 
   const {
     register,
@@ -36,16 +40,14 @@ export function LostItemForm() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<CreateLostItemInput>({
-    resolver: zodResolver(createLostItemSchema),
+  } = useForm<CreateFoundItemInput>({
+    resolver: zodResolver(createFoundItemSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      category: "OTHER",
-      location: "",
-      dateLost: new Date().toISOString().split("T")[0],
-      verificationQuestion: "",
-      verificationAnswer: "",
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      location: item.location,
+      dateFound: new Date(item.dateFound).toISOString().split("T")[0],
     },
   });
 
@@ -53,27 +55,29 @@ export function LostItemForm() {
   const location = watch("location");
 
   const handleImageChange = (file: File | null) => {
-    if (imagePreview) {
+    if (imagePreview && imagePreview.startsWith("blob:")) {
       URL.revokeObjectURL(imagePreview);
     }
-
     setImageFile(file);
-    setImagePreview(file ? URL.createObjectURL(file) : null);
+    setImagePreview(file ? URL.createObjectURL(file) : item.imageUrl ?? null);
   };
 
   const clearImage = () => {
     handleImageChange(null);
+    setImagePreview(null);
   };
 
-  const onSubmit = async (values: CreateLostItemInput) => {
+  const onSubmit = async (values: CreateFoundItemInput) => {
     setSubmitting(true);
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => formData.append(key, String(value ?? "")));
     if (imageFile) {
       formData.append("image", imageFile);
+    } else if (!imagePreview) {
+      formData.append("imageUrl", "");
     }
 
-    const result = await createLostItemAction(formData);
+    const result = await updateFoundItemAction(item.id, formData);
     setSubmitting(false);
 
     if (!result.success) {
@@ -81,8 +85,8 @@ export function LostItemForm() {
       return;
     }
 
-    toast.success("Lost item reported!");
-    router.push(`/dashboard/lost/${result.data?.id}`);
+    toast.success("Found item updated");
+    router.push(`/dashboard/found/${item.id}`);
     router.refresh();
   };
 
@@ -90,16 +94,14 @@ export function LostItemForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-2xl space-y-5">
       <div className="space-y-2">
         <Label htmlFor="title">Title</Label>
-        <Input id="title" {...register("title")} placeholder="e.g. Black wallet" />
+        <Input id="title" {...register("title")} />
         {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Textarea id="description" rows={4} {...register("description")} />
-        {errors.description && (
-          <p className="text-sm text-destructive">{errors.description.message}</p>
-        )}
+        {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -107,7 +109,7 @@ export function LostItemForm() {
           <Label>Category</Label>
           <Select
             value={category}
-            onValueChange={(v) => setValue("category", v as CreateLostItemInput["category"])}
+            onValueChange={(v) => setValue("category", v as CreateFoundItemInput["category"])}
           >
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -118,8 +120,8 @@ export function LostItemForm() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="dateLost">Date Lost</Label>
-          <Input id="dateLost" type="date" {...register("dateLost")} />
+          <Label htmlFor="dateFound">Date Found</Label>
+          <Input id="dateFound" type="date" {...register("dateFound")} />
         </div>
       </div>
 
@@ -130,32 +132,6 @@ export function LostItemForm() {
         label="Location"
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="verificationQuestion">Verification Question</Label>
-        <Input
-          id="verificationQuestion"
-          {...register("verificationQuestion")}
-          placeholder='e.g. "What is inside the wallet?"'
-        />
-        {errors.verificationQuestion && (
-          <p className="text-sm text-destructive">{errors.verificationQuestion.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="verificationAnswer">Verification Answer</Label>
-        <Input
-          id="verificationAnswer"
-          type="password"
-          autoComplete="off"
-          {...register("verificationAnswer")}
-          placeholder="Answer only you would know (stored securely)"
-        />
-        {errors.verificationAnswer && (
-          <p className="text-sm text-destructive">{errors.verificationAnswer.message}</p>
-        )}
-      </div>
-
       <ImageUploadField
         previewUrl={imagePreview}
         onFileChange={handleImageChange}
@@ -164,8 +140,9 @@ export function LostItemForm() {
 
       <Button type="submit" disabled={submitting}>
         {submitting && <Spinner className="mr-2" />}
-        Report Lost Item
+        Save Changes
       </Button>
     </form>
   );
 }
+

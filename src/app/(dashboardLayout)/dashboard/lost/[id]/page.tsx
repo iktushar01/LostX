@@ -3,6 +3,9 @@ import { getLostItemByIdAction } from "@/actions/lostx/lost-item.actions";
 import { getCurrentUserAction } from "@/actions/_getCurrentUserAction";
 import { ItemDetailLayout } from "@/components/items/ItemDetailLayout";
 import { DeleteLostItemButton } from "@/components/lost-items/DeleteLostItemButton";
+import { SuggestedMatches } from "@/components/matches/SuggestedMatches";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -34,7 +37,21 @@ export default async function LostItemDetailPage({ params }: Props) {
       imageUrl={item.imageUrl}
       reporterName={item.user?.name}
       backHref="/dashboard/lost"
-      actions={isOwner ? <DeleteLostItemButton itemId={item.id} /> : undefined}
+      actions={
+        isOwner ? (
+          <>
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/lost/${item.id}/edit`}>Edit report</Link>
+            </Button>
+            <DeleteLostItemButton itemId={item.id} />
+          </>
+        ) : undefined
+      }
+      aside={
+        item.suggestedMatches?.length ? (
+          <SuggestedMatches matches={item.suggestedMatches} currentType="lost" />
+        ) : undefined
+      }
     />
   );
 }

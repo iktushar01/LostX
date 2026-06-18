@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getClaimByIdAction } from "@/actions/lostx/claim.actions";
+import { getClaimByIdAction, getClaimMessagesAction } from "@/actions/lostx/claim.actions";
+import { getCurrentUserAction } from "@/actions/_getCurrentUserAction";
 import { ClaimStatusBadge } from "@/components/admin/claim-status-badge";
 import { ClaimActions } from "@/components/admin/claim-actions";
 import { CategoryBadge, formatLabel } from "@/components/shared/ItemBadges";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft } from "lucide-react";
+import { ClaimChatPanel } from "@/components/claims/ClaimChatPanel";
 
 interface AdminClaimDetailPageProps {
   params: Promise<{ id: string }>;
@@ -25,9 +27,13 @@ function formatDate(value: string) {
 
 export default async function AdminClaimDetailPage({ params }: AdminClaimDetailPageProps) {
   const { id } = await params;
-  const result = await getClaimByIdAction(id);
+  const [result, messagesResult, userResult] = await Promise.all([
+    getClaimByIdAction(id),
+    getClaimMessagesAction(id),
+    getCurrentUserAction(),
+  ]);
 
-  if (!result.success || !result.data) {
+  if (!result.success || !result.data || !userResult.success || !userResult.data) {
     notFound();
   }
 
@@ -183,6 +189,14 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
               <ClaimActions claimId={claim.id} status={claim.status} redirectTo="/admin/claims" />
             </CardContent>
           </Card>
+
+          {claim.status === "APPROVED" ? (
+            <ClaimChatPanel
+              claimId={claim.id}
+              currentUserId={userResult.data.id}
+              messages={messagesResult.data ?? []}
+            />
+          ) : null}
         </div>
       </div>
     </div>

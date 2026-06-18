@@ -26,8 +26,8 @@ export const createFoundItemSchema = z.object({
 });
 
 export const createClaimSchema = z.object({
-  foundItemId: z.string().uuid(),
-  lostItemId: z.string().uuid("Select a lost item report"),
+  foundItemId: z.string().min(1),
+  lostItemId: z.string().min(1, "Select a lost item report"),
   answer: z.string().min(2, "Answer must be at least 2 characters").max(2000),
 });
 

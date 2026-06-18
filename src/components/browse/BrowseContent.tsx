@@ -10,11 +10,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ITEM_CATEGORIES, BrowseItem, ItemCategory } from "@/types/lostx.types";
+import { ITEM_CATEGORIES, BrowseItem, BrowseMatchSuggestions, ItemCategory, ScoredMatch } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
 import { Search } from "lucide-react";
 import { ItemCard } from "@/components/shared/ItemCard";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface BrowseFiltersProps {
@@ -104,9 +105,10 @@ function matchesCategory(item: BrowseItem, category: string) {
 interface BrowseContentProps {
   lostItems: BrowseItem[];
   foundItems: BrowseItem[];
+  matchSuggestions?: BrowseMatchSuggestions;
 }
 
-export function BrowseContent({ lostItems, foundItems }: BrowseContentProps) {
+export function BrowseContent({ lostItems, foundItems, matchSuggestions }: BrowseContentProps) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [type, setType] = useState("all");
@@ -181,7 +183,10 @@ export function BrowseContent({ lostItems, foundItems }: BrowseContentProps) {
               {filteredLost.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No lost items match your filters.</p>
               ) : (
-                <BrowseItemGrid items={filteredLost} />
+                <BrowseItemGrid
+                  items={filteredLost}
+                  getTopMatch={(item) => matchSuggestions?.byLostId[item.id]?.[0]}
+                />
               )}
             </section>
           )}
@@ -195,7 +200,10 @@ export function BrowseContent({ lostItems, foundItems }: BrowseContentProps) {
               {filteredFound.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No found items match your filters.</p>
               ) : (
-                <BrowseItemGrid items={filteredFound} />
+                <BrowseItemGrid
+                  items={filteredFound}
+                  getTopMatch={(item) => matchSuggestions?.byFoundId[item.id]?.[0]}
+                />
               )}
             </section>
           )}
@@ -205,24 +213,41 @@ export function BrowseContent({ lostItems, foundItems }: BrowseContentProps) {
   );
 }
 
-function BrowseItemGrid({ items }: { items: BrowseItem[] }) {
+function BrowseItemGrid({
+  items,
+  getTopMatch,
+}: {
+  items: BrowseItem[];
+  getTopMatch?: (item: BrowseItem) => ScoredMatch | undefined;
+}) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {items.map((item) => {
         const date = item.itemType === "lost" ? item.dateLost : item.dateFound;
+        const topMatch = getTopMatch?.(item);
         return (
-          <ItemCard
-            key={`${item.itemType}-${item.id}`}
-            id={item.id}
-            type={item.itemType}
-            title={item.title}
-            description={item.description}
-            category={item.category}
-            location={item.location}
-            date={date}
-            status={item.status}
-            imageUrl={item.imageUrl}
-          />
+          <div key={`${item.itemType}-${item.id}`} className="space-y-2">
+            <ItemCard
+              id={item.id}
+              type={item.itemType}
+              title={item.title}
+              description={item.description}
+              category={item.category}
+              location={item.location}
+              date={date}
+              status={item.status}
+              imageUrl={item.imageUrl}
+              isFeatured={item.isFeatured}
+            />
+            {topMatch && (
+              <div className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50/60 px-3 py-2 text-xs text-violet-700 dark:border-violet-900/50 dark:bg-violet-950/30 dark:text-violet-300">
+                <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">
+                  Suggested: {topMatch.title} ({topMatch.score}%)
+                </span>
+              </div>
+            )}
+          </div>
         );
       })}
     </div>

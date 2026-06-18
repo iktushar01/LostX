@@ -4,7 +4,7 @@ import { StatsCards } from "@/components/admin/stats-cards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ShieldCheck, ArrowRight, FileCheck } from "lucide-react";
+import { ShieldCheck, ArrowRight, FileCheck, PackageSearch } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const result = await getAdminStatsAction();
@@ -64,6 +64,26 @@ export default async function AdminDashboardPage() {
             <p>2. Admin compares expected vs submitted answer</p>
             <p>3. Approve → item marked claimed, lost item recovered</p>
             <p>4. Reject → user notified, item stays available</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PackageSearch className="h-5 w-5 text-violet-600" />
+              Item Moderation
+            </CardTitle>
+            <CardDescription>
+              Remove spam listings and feature important items.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="secondary" asChild>
+              <Link href="/admin/items">
+                Manage Items
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

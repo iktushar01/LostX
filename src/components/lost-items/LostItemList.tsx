@@ -34,6 +34,7 @@ export function LostItemList({ items }: LostItemListProps) {
           date={item.dateLost}
           status={item.status}
           imageUrl={item.imageUrl}
+          isFeatured={item.isFeatured}
         />
       ))}
     </div>

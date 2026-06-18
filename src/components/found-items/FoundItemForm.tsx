@@ -21,6 +21,7 @@ import { createFoundItemSchema, CreateFoundItemInput } from "@/zod/lostx.validat
 import { ITEM_CATEGORIES } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
 import { ImageUploadField } from "@/components/shared/ImageUploadField";
+import { CampusLocationPicker } from "@/components/shared/CampusLocationPicker";
 import { createFoundItemAction } from "@/actions/lostx/found-item.actions";
 
 export function FoundItemForm() {
@@ -47,6 +48,7 @@ export function FoundItemForm() {
   });
 
   const category = watch("category");
+  const location = watch("location");
 
   const handleImageChange = (file: File | null) => {
     if (imagePreview) {
@@ -119,11 +121,12 @@ export function FoundItemForm() {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
-        <Input id="location" {...register("location")} placeholder="Where you found it" />
-        {errors.location && <p className="text-sm text-destructive">{errors.location.message}</p>}
-      </div>
+      <CampusLocationPicker
+        value={location}
+        onChange={(v) => setValue("location", v, { shouldDirty: true, shouldValidate: true })}
+        error={errors.location?.message}
+        label="Location"
+      />
 
       <ImageUploadField
         previewUrl={imagePreview}
