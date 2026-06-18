@@ -9,13 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ITEM_CATEGORIES, BrowseItem, BrowseMatchSuggestions, ItemCategory, ScoredMatch } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
-import { Search } from "lucide-react";
+import { Search, Sparkles, Filter } from "lucide-react";
 import { ItemCard } from "@/components/shared/ItemCard";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface BrowseFiltersProps {
@@ -36,50 +35,62 @@ export function BrowseFilters({
   onTypeChange,
 }: BrowseFiltersProps) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-card p-4 shadow-sm dark:border-slate-800">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-        <div className="relative flex-1 space-y-1.5">
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Search
+    <div className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+        {/* Search Input */}
+        <div className="relative flex-1 space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5">
+            <Search className="h-3 w-3" /> search feed
           </label>
-          <Search className="absolute bottom-2.5 left-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by title or description..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="h-10 border-slate-200 bg-slate-50 pl-9 dark:border-slate-800 dark:bg-slate-900/50"
-          />
+          <div className="relative">
+            <Input
+              placeholder="What did you lose or find? (e.g. Airpods Pro)..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="h-11 border-zinc-200/80 bg-zinc-50/50 rounded-xl focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white transition-all pl-4 dark:border-zinc-800/80 dark:bg-zinc-950/40"
+            />
+          </div>
         </div>
-        <div className="space-y-1.5 sm:w-48">
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Category
+
+        {/* Dynamic Type Switcher (Pills instead of dropdown) */}
+        <div className="space-y-2 min-w-[240px]">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            status filter
+          </label>
+          <div className="grid grid-cols-3 gap-1 bg-zinc-100 dark:bg-zinc-900/80 p-1.5 rounded-xl h-11 items-center">
+            {["all", "lost", "found"].map((t) => (
+              <button
+                key={t}
+                onClick={() => onTypeChange(t)}
+                className={cn(
+                  "h-8 rounded-lg text-xs font-semibold capitalize transition-all duration-200",
+                  type === t
+                    ? "bg-white dark:bg-zinc-800 text-black dark:text-white shadow-sm scale-[1.02]"
+                    : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                )}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Category Select Dropdown */}
+        <div className="space-y-2 sm:w-56">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5">
+            <Filter className="h-3 w-3" /> category
           </label>
           <Select value={category} onValueChange={onCategoryChange}>
-            <SelectTrigger className="h-10">
-              <SelectValue placeholder="All" />
+            <SelectTrigger className="h-11 rounded-xl bg-zinc-50/50 dark:bg-zinc-950/40 border-zinc-200/80 dark:border-zinc-800/80 focus:ring-black dark:focus:ring-white">
+              <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">All categories</SelectItem>
               {ITEM_CATEGORIES.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {formatLabel(cat)}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-1.5 sm:w-40">
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Type
-          </label>
-          <Select value={type} onValueChange={onTypeChange}>
-            <SelectTrigger className="h-10">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="lost">Lost Items</SelectItem>
-              <SelectItem value="found">Found Items</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -155,7 +166,7 @@ export function BrowseContent({ lostItems, foundItems, matchSuggestions }: Brows
     (showLost && filteredLost.length > 0) || (showFound && filteredFound.length > 0);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <BrowseFilters
         search={search}
         category={category}
@@ -173,15 +184,19 @@ export function BrowseContent({ lostItems, foundItems, matchSuggestions }: Brows
           actionHref="/browse"
         />
       ) : (
-        <>
+        <div className="space-y-14">
           {showLost && (
-            <section className="space-y-4">
+            <section className="space-y-6">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold tracking-tight">Lost Items</h2>
-                <Badge variant="secondary">{filteredLost.length}</Badge>
+                <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+                  Lost Items
+                </h2>
+                <Badge className="bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-full font-mono text-xs px-2.5">
+                  {filteredLost.length}
+                </Badge>
               </div>
               {filteredLost.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No lost items match your filters.</p>
+                <p className="text-sm text-zinc-400 dark:text-zinc-500">No lost items match your filters.</p>
               ) : (
                 <BrowseItemGrid
                   items={filteredLost}
@@ -192,13 +207,17 @@ export function BrowseContent({ lostItems, foundItems, matchSuggestions }: Brows
           )}
 
           {showFound && (
-            <section className="space-y-4">
-              <div className="flex items-center gap-3 border-t border-slate-200/80 pt-10 dark:border-slate-800">
-                <h2 className="text-lg font-semibold tracking-tight">Found Items</h2>
-                <Badge variant="secondary">{filteredFound.length}</Badge>
+            <section className="space-y-6">
+              <div className="flex items-center gap-3 border-t border-zinc-100 dark:border-zinc-900 pt-10">
+                <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+                  Found Items
+                </h2>
+                <Badge className="bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-full font-mono text-xs px-2.5 border border-emerald-500/20">
+                  {filteredFound.length}
+                </Badge>
               </div>
               {filteredFound.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No found items match your filters.</p>
+                <p className="text-sm text-zinc-400 dark:text-zinc-500">No found items match your filters.</p>
               ) : (
                 <BrowseItemGrid
                   items={filteredFound}
@@ -207,7 +226,7 @@ export function BrowseContent({ lostItems, foundItems, matchSuggestions }: Brows
               )}
             </section>
           )}
-        </>
+        </div>
       )}
     </div>
   );
@@ -221,29 +240,32 @@ function BrowseItemGrid({
   getTopMatch?: (item: BrowseItem) => ScoredMatch | undefined;
 }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {items.map((item) => {
         const date = item.itemType === "lost" ? item.dateLost : item.dateFound;
         const topMatch = getTopMatch?.(item);
         return (
-          <div key={`${item.itemType}-${item.id}`} className="space-y-2">
-            <ItemCard
-              id={item.id}
-              type={item.itemType}
-              title={item.title}
-              description={item.description}
-              category={item.category}
-              location={item.location}
-              date={date}
-              status={item.status}
-              imageUrl={item.imageUrl}
-              isFeatured={item.isFeatured}
-            />
+          <div key={`${item.itemType}-${item.id}`} className="group relative space-y-3 flex flex-col justify-between">
+            <div className="transition-transform duration-300 group-hover:-translate-y-1">
+              <ItemCard
+                id={item.id}
+                type={item.itemType}
+                title={item.title}
+                description={item.description}
+                category={item.category}
+                location={item.location}
+                date={date}
+                status={item.status}
+                imageUrl={item.imageUrl}
+                isFeatured={item.isFeatured}
+              />
+            </div>
             {topMatch && (
-              <div className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50/60 px-3 py-2 text-xs text-violet-700 dark:border-violet-900/50 dark:bg-violet-950/30 dark:text-violet-300">
-                <Sparkles className="h-3.5 w-3.5 shrink-0" />
+              <div className="relative overflow-hidden flex items-center gap-2 rounded-xl border border-indigo-500/20 bg-indigo-500/5 dark:bg-indigo-500/10 px-3 py-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.05)]">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_2s_infinite]" />
+                <Sparkles className="h-3.5 w-3.5 shrink-0 text-indigo-500 animate-pulse" />
                 <span className="truncate">
-                  Suggested: {topMatch.title} ({topMatch.score}%)
+                  AI Match: <span className="font-bold">{topMatch.title}</span> ({topMatch.score}%)
                 </span>
               </div>
             )}

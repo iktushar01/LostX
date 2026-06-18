@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, ImageIcon, Star } from "lucide-react";
+import { Calendar, MapPin, ImageIcon, Star, ArrowUpRight } from "lucide-react";
 import { CategoryBadge, StatusBadge, TypeBadge } from "./ItemBadges";
 import { cn } from "@/lib/utils";
 
@@ -39,62 +39,87 @@ export function ItemCard({
   return (
     <Card
       className={cn(
-        "group h-full overflow-hidden border-slate-200/80 shadow-sm transition-all duration-200",
-        "hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:hover:border-slate-700",
+        "group h-full overflow-hidden rounded-3xl border-slate-200/80 shadow-sm transition-all duration-300 ease-out",
+        "hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-xl dark:border-slate-800 dark:hover:border-slate-700",
       )}
     >
-      <Link href={link} className="block">
+      <Link href={link} className="relative block">
+        {/* Image / Thumbnail Wrapper */}
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-slate-900">
           {imageUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={imageUrl}
               alt={title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-slate-300 dark:text-slate-700">
-              <ImageIcon className="h-12 w-12" />
+              <ImageIcon className="h-10 w-10 stroke-[1.5]" />
             </div>
           )}
-          <div className="absolute left-3 top-3">
+          
+          {/* Badge placements over image */}
+          <div className="absolute left-3 top-3 z-10">
             <TypeBadge type={type} />
           </div>
-          {isFeatured ? (
-            <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-1 text-[11px] font-medium text-white">
+          
+          {isFeatured && (
+            <div className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
               <Star className="h-3 w-3 fill-current" />
               Featured
             </div>
-          ) : null}
+          )}
+
+          {/* Dark overlay on hover for better immersion */}
+          <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:bg-black/10" />
         </div>
       </Link>
 
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="space-y-4 p-5">
+        {/* Dynamic status badges wrapper */}
         <div className="flex flex-wrap gap-1.5">
           <CategoryBadge category={category} />
           <StatusBadge status={status} />
         </div>
-        <Link href={link}>
-          <h3 className="line-clamp-1 text-base font-semibold tracking-tight transition-colors group-hover:text-primary">
-            {title}
-          </h3>
-        </Link>
-        <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
-        <div className="space-y-1.5 text-sm text-muted-foreground">
+
+        {/* Title + Micro arrow interaction */}
+        <div className="space-y-1">
+          <Link href={link} className="flex items-start justify-between gap-2">
+            <h3 className="line-clamp-1 text-base font-bold tracking-tight transition-colors group-hover:text-primary">
+              {title}
+            </h3>
+            {/* Smooth scaling arrow circle indicator */}
+            <div className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 transition-all duration-300 group-hover:bg-primary group-hover:text-white dark:bg-slate-800 dark:text-slate-500 group-hover:rotate-45">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+          <p className="line-clamp-2 text-sm text-muted-foreground/90 leading-relaxed">
+            {description}
+          </p>
+        </div>
+
+        {/* Info Rows */}
+        <div className="space-y-2 border-t border-slate-100 pt-4 text-xs font-medium text-muted-foreground dark:border-slate-800/60">
           <div className="flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
-            <span className="line-clamp-1">{location}</span>
+            <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <span className="line-clamp-1 font-mono">{location}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 shrink-0" />
-            <span>{new Date(date).toLocaleDateString()}</span>
+            <Calendar className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <span className="font-mono">{new Date(date).toLocaleDateString()}</span>
           </div>
         </div>
       </CardContent>
 
       {showAction && (
-        <CardFooter className="border-t border-slate-100 p-4 pt-0 dark:border-slate-800">
-          <Button variant="ghost" size="sm" className="w-full text-primary" asChild>
+        <CardFooter className="p-5 pt-0">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full rounded-xl bg-slate-50 font-semibold text-primary transition-all duration-200 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-900" 
+            asChild
+          >
             <Link href={link}>View Details</Link>
           </Button>
         </CardFooter>
