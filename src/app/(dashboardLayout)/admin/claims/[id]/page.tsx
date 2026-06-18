@@ -165,10 +165,12 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900 dark:bg-emerald-950/20">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Expected Answer
+                    Verification Check
                   </p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm font-medium">
-                    {lostItem?.verificationAnswer ?? "—"}
+                  <p className="mt-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                    {claim.status === "REJECTED"
+                      ? "Failed — answer did not match"
+                      : "Passed — answer matched (stored securely, not shown)"}
                   </p>
                 </div>
                 <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/20">

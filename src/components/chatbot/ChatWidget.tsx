@@ -22,8 +22,8 @@ const STARTER_PROMPTS = [
   "Show found phones on campus",
 ];
 
-function formatConfidence(similarity: number) {
-  return `${Math.round(similarity * 100)}%`;
+function formatConfidence(match: ChatbotMatch) {
+  return `${Math.round(match.score ?? match.similarity * 100)}%`;
 }
 
 function MatchCard({ match }: { match: ChatbotMatch }) {
@@ -52,7 +52,7 @@ function MatchCard({ match }: { match: ChatbotMatch }) {
           variant="secondary"
           className="shrink-0 bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300"
         >
-          {formatConfidence(match.similarity)}
+          {formatConfidence(match)}
         </Badge>
       </div>
     </Link>

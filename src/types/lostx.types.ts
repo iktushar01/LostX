@@ -192,6 +192,7 @@ export interface ChatbotMatch {
   status: string;
   date: string;
   similarity: number;
+  score: number;
 }
 
 export interface ChatbotMeta {

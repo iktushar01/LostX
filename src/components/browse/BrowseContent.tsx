@@ -265,7 +265,7 @@ function BrowseItemGrid({
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_2s_infinite]" />
                 <Sparkles className="h-3.5 w-3.5 shrink-0 text-indigo-500 animate-pulse" />
                 <span className="truncate">
-                  AI Match: <span className="font-bold">{topMatch.title}</span> ({topMatch.score}%)
+                  Match: <span className="font-bold">{topMatch.title}</span> ({topMatch.score}%)
                 </span>
               </div>
             )}
