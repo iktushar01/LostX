@@ -99,6 +99,10 @@ export function BrowseFilters({
   );
 }
 
+function sortFeaturedFirst(items: BrowseItem[]) {
+  return [...items].sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured));
+}
+
 function matchesSearch(item: BrowseItem, term: string) {
   if (!term.trim()) return true;
   const q = term.toLowerCase();
@@ -142,20 +146,24 @@ export function BrowseContent({ lostItems, foundItems, matchSuggestions }: Brows
 
   const filteredLost = useMemo(
     () =>
-      lostItems.filter(
-        (item) =>
-          matchesSearch(item, search) &&
-          matchesCategory(item, category as ItemCategory | "all"),
+      sortFeaturedFirst(
+        lostItems.filter(
+          (item) =>
+            matchesSearch(item, search) &&
+            matchesCategory(item, category as ItemCategory | "all"),
+        ),
       ),
     [lostItems, search, category],
   );
 
   const filteredFound = useMemo(
     () =>
-      foundItems.filter(
-        (item) =>
-          matchesSearch(item, search) &&
-          matchesCategory(item, category as ItemCategory | "all"),
+      sortFeaturedFirst(
+        foundItems.filter(
+          (item) =>
+            matchesSearch(item, search) &&
+            matchesCategory(item, category as ItemCategory | "all"),
+        ),
       ),
     [foundItems, search, category],
   );

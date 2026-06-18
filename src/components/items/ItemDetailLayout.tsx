@@ -39,69 +39,95 @@ export function ItemDetailLayout({
   aside,
 }: ItemDetailLayoutProps) {
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <Button variant="ghost" size="sm" asChild>
-        <Link href={backHref}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Link>
-      </Button>
+    <div className="mx-auto max-w-5xl space-y-8 animate-in fade-in-50 duration-300">
+      {/* Sleek navigation link */}
+      <div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 group" 
+          asChild
+        >
+          <Link href={backHref}>
+            <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Back to browse
+          </Link>
+        </Button>
+      </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
-        <div className="space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50">
+      <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] items-start">
+        {/* Media Window Section */}
+        <div className="space-y-4 lg:sticky lg:top-6">
+          <div className="group overflow-hidden rounded-[28px] border border-slate-200 bg-slate-50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] dark:border-slate-800 dark:bg-slate-900/50">
             {imageUrl ? (
-              <div className="aspect-square w-full">
+              <div className="aspect-square w-full overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
+                <img 
+                  src={imageUrl} 
+                  alt={title} 
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" 
+                />
               </div>
             ) : (
               <div className="flex aspect-square items-center justify-center text-slate-300 dark:text-slate-700">
-                <ImageIcon className="h-20 w-20" />
+                <ImageIcon className="h-16 w-16 stroke-[1.25]" />
               </div>
             )}
           </div>
         </div>
 
+        {/* Core Content Info Panel */}
         <div className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <TypeBadge type={type} />
             <CategoryBadge category={category} />
             <StatusBadge status={status} />
           </div>
 
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-            <p className="mt-4 whitespace-pre-wrap leading-relaxed text-muted-foreground">
+          <div className="space-y-3">
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
+              {title}
+            </h1>
+            <p className="whitespace-pre-wrap text-base leading-relaxed text-muted-foreground/90 font-normal">
               {description}
             </p>
           </div>
 
-          <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
-            <CardContent className="space-y-4 p-5">
-              <div className="flex items-center gap-3 text-sm">
-                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+          {/* Bento Meta Details Information Card */}
+          <Card className="rounded-[24px] border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] dark:border-slate-800">
+            <CardContent className="space-y-4 p-6">
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500">
+                  <MapPin className="h-4 w-4" />
+                </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Location</p>
-                  <p className="font-medium">{location}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Location discovered</p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200 font-mono mt-0.5">{location}</p>
                 </div>
               </div>
-              <Separator />
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+              
+              <Separator className="bg-slate-100 dark:bg-slate-800" />
+              
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500">
+                  <Calendar className="h-4 w-4" />
+                </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">{dateLabel}</p>
-                  <p className="font-medium">{new Date(date).toLocaleDateString()}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{dateLabel}</p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200 font-mono mt-0.5">{new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                 </div>
               </div>
+
               {reporterName && (
                 <>
-                  <Separator />
-                  <div className="flex items-center gap-3 text-sm">
-                    <User className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <Separator className="bg-slate-100 dark:bg-slate-800" />
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500">
+                      <User className="h-4 w-4" />
+                    </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Reported by</p>
-                      <p className="font-medium">{reporterName}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Reported by</p>
+                      <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{reporterName}</p>
                     </div>
                   </div>
                 </>
@@ -109,19 +135,22 @@ export function ItemDetailLayout({
             </CardContent>
           </Card>
 
+          {/* Primary Action Callout Module */}
           {primaryCta && (
-            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-5 dark:border-blue-900/50 dark:bg-blue-950/20">
-              <p className="mb-3 text-sm font-medium text-blue-700 dark:text-blue-400">
+            <div className="rounded-[24px] border border-blue-200 bg-blue-50/50 p-6 dark:border-blue-900/50 dark:bg-blue-950/20 shadow-sm">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400">
                 Think this item is yours?
               </p>
               {primaryCta}
             </div>
           )}
 
-          {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+          {/* Management / Action Triggers row */}
+          {actions && <div className="flex flex-wrap gap-2.5 pt-2">{actions}</div>}
         </div>
 
-        {aside && <div className="lg:col-span-2">{aside}</div>}
+        {/* Optional Aside Placement slots */}
+        {aside && <div className="lg:col-span-2 pt-4">{aside}</div>}
       </div>
     </div>
   );

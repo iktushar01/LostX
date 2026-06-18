@@ -21,6 +21,18 @@ export async function getAdminStatsAction(): Promise<{
   }
 }
 
+export async function getAdminAnalyticsAction() {
+  try {
+    const response = await adminService.getAnalytics();
+    return { success: true, data: response.data };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getApiErrorMessage(error, "Failed to load analytics"),
+    };
+  }
+}
+
 export async function getAdminItemsAction(params?: Record<string, unknown>): Promise<{
   success: boolean;
   data: AdminManagedItem[];

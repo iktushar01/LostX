@@ -16,6 +16,7 @@ import { CAMPUS_BUILDINGS } from "@/constants/campus";
 interface CampusLocationPickerProps {
   value: string;
   onChange: (value: string) => void;
+  onStructuredChange?: (parts: { building?: string; floor?: string; room?: string }) => void;
   error?: string;
   label?: string;
 }
@@ -23,6 +24,7 @@ interface CampusLocationPickerProps {
 export function CampusLocationPicker({
   value,
   onChange,
+  onStructuredChange,
   error,
   label = "Location",
 }: CampusLocationPickerProps) {
@@ -44,6 +46,7 @@ export function CampusLocationPicker({
           onValueChange={(next) => {
             if (next === "custom") return;
             onChange(next);
+            onStructuredChange?.({ building: next });
           }}
         >
           <SelectTrigger>
@@ -69,6 +72,24 @@ export function CampusLocationPicker({
           />
         </div>
       </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Floor (optional)</Label>
+          <Input
+            placeholder="e.g. 3"
+            onChange={(e) => onStructuredChange?.({ floor: e.target.value })}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Room / area (optional)</Label>
+          <Input
+            placeholder="e.g. 301 or cafeteria"
+            onChange={(e) => onStructuredChange?.({ room: e.target.value })}
+          />
+        </div>
+      </div>
+
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       {mapUrl ? (
@@ -85,4 +106,3 @@ export function CampusLocationPicker({
     </div>
   );
 }
-

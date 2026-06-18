@@ -1,13 +1,17 @@
 import Link from "next/link";
-import { getAdminStatsAction } from "@/actions/lostx/admin.actions";
+import { getAdminStatsAction, getAdminAnalyticsAction } from "@/actions/lostx/admin.actions";
 import { StatsCards } from "@/components/admin/stats-cards";
+import { AnalyticsPanel } from "@/components/admin/analytics-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShieldCheck, ArrowRight, FileCheck, PackageSearch } from "lucide-react";
 
 export default async function AdminDashboardPage() {
-  const result = await getAdminStatsAction();
+  const [result, analyticsResult] = await Promise.all([
+    getAdminStatsAction(),
+    getAdminAnalyticsAction(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -29,6 +33,10 @@ export default async function AdminDashboardPage() {
       ) : (
         <StatsCards stats={result.data} />
       )}
+
+      {analyticsResult.success && analyticsResult.data ? (
+        <AnalyticsPanel analytics={analyticsResult.data} />
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
@@ -61,9 +69,9 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>1. User submits claim with verification answer</p>
-            <p>2. Admin compares expected vs submitted answer</p>
-            <p>3. Approve → item marked claimed, lost item recovered</p>
-            <p>4. Reject → user notified, item stays available</p>
+            <p>2. High match score + correct answer may auto-approve</p>
+            <p>3. Otherwise staff reviews pending claims</p>
+            <p>4. Claimant confirms receipt → finder marks returned</p>
           </CardContent>
         </Card>
 

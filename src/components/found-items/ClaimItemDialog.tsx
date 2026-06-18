@@ -10,8 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { HandHelping } from "lucide-react";
+import { HandHelping, Zap } from "lucide-react";
 import { ClaimForm } from "@/components/claims/ClaimForm";
+import { QuickClaimForm } from "@/components/claims/QuickClaimForm";
+import { cn } from "@/lib/utils";
 
 interface ClaimItemDialogProps {
   foundItemId: string;
@@ -21,6 +23,7 @@ interface ClaimItemDialogProps {
 
 export function ClaimItemDialog({ foundItemId, itemTitle, size = "default" }: ClaimItemDialogProps) {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"existing" | "quick">("existing");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -34,10 +37,39 @@ export function ClaimItemDialog({ foundItemId, itemTitle, size = "default" }: Cl
         <DialogHeader>
           <DialogTitle>Claim: {itemTitle}</DialogTitle>
           <DialogDescription>
-            Select your lost item report and answer the verification question. An admin will review your claim.
+            High-confidence matches with correct verification may auto-approve. Otherwise staff will review.
           </DialogDescription>
         </DialogHeader>
-        <ClaimForm foundItemId={foundItemId} onSuccess={() => setOpen(false)} />
+
+        <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted/50 p-1">
+          <button
+            type="button"
+            onClick={() => setMode("existing")}
+            className={cn(
+              "rounded-lg px-3 py-2 text-xs font-semibold transition-colors",
+              mode === "existing" ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            Use lost report
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("quick")}
+            className={cn(
+              "flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors",
+              mode === "quick" ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            <Zap className="h-3 w-3" />
+            Quick claim
+          </button>
+        </div>
+
+        {mode === "existing" ? (
+          <ClaimForm foundItemId={foundItemId} onSuccess={() => setOpen(false)} />
+        ) : (
+          <QuickClaimForm foundItemId={foundItemId} onSuccess={() => setOpen(false)} />
+        )}
       </DialogContent>
     </Dialog>
   );

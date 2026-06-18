@@ -126,3 +126,44 @@ export async function sendClaimMessageAction(claimId: string, content: string) {
     };
   }
 }
+
+export async function createQuickClaimAction(formData: FormData) {
+  const raw = Object.fromEntries(formData.entries());
+  const { quickClaimSchema } = await import("@/zod/lostx.validation");
+  const parsed = quickClaimSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? "Validation failed",
+    };
+  }
+
+  try {
+    const response = await claimService.createQuick(parsed.data);
+
+    revalidatePath("/claims");
+    revalidatePath(`/dashboard/found/${parsed.data.foundItemId}`);
+    revalidatePath("/admin/claims");
+    revalidatePath("/dashboard");
+
+    return {
+      success: true,
+      message: response.message,
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    return { success: false, message: getApiErrorMessage(error, "Failed to submit quick claim") };
+  }
+}
+
+export async function confirmClaimReceivedAction(claimId: string) {
+  try {
+    const response = await claimService.confirmReceived(claimId);
+    revalidatePath("/claims");
+    revalidatePath(`/claims/${claimId}`);
+    return { success: true, message: response.message, data: response.data };
+  } catch (error: unknown) {
+    return { success: false, message: getApiErrorMessage(error, "Failed to confirm receipt") };
+  }
+}

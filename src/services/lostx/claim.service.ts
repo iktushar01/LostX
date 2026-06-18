@@ -5,6 +5,12 @@ export const claimService = {
   create: (data: { foundItemId: string; lostItemId: string; answer: string }) =>
     httpClient.post<Claim>("/claims", data),
 
+  createQuick: (data: Record<string, unknown>) =>
+    httpClient.post<Claim>("/claims/quick", data),
+
+  confirmReceived: (id: string) =>
+    httpClient.patch<Claim>(`/claims/${id}/confirm-received`, {}),
+
   listMine: () => httpClient.get<Claim[]>("/claims/mine"),
 
   listAll: (filters?: ClaimListFilters) => {

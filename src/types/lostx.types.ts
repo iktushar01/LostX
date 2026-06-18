@@ -70,6 +70,10 @@ export interface Claim {
   userId: string;
   foundItemId: string;
   lostItemId?: string | null;
+  autoApproved?: boolean;
+  matchScore?: number | null;
+  receivedConfirmedAt?: string | null;
+  handoffCode?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: ItemUser;
@@ -98,6 +102,27 @@ export interface AdminStats {
   pendingClaims: number;
   approvedClaims: number;
   recoveredItems: number;
+}
+
+export interface AdminAnalytics {
+  recoveryRate: number;
+  avgDaysToReturn: number;
+  returnedItems: number;
+  approvedClaims: number;
+  autoApprovedClaims: number;
+  autoApproveRate: number;
+  topLostCategories: { category: ItemCategory; count: number }[];
+  topFoundCategories: { category: ItemCategory; count: number }[];
+}
+
+export interface AuditLogEntry {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
+  actor?: ItemUser & { role?: string };
 }
 
 export interface AdminManagedItem {
