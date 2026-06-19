@@ -40,6 +40,13 @@ export const createFoundItemSchema = z.object({
   showImagePublic: z.boolean().optional(),
   showDescriptionPublic: z.boolean().optional(),
   showLocationPublic: z.boolean().optional(),
+  linkedLostItemId: z.string().min(1).optional(),
+});
+
+export const finderTipSchema = z.object({
+  note: z.string().max(500).optional(),
+  location: z.string().min(2, "Location is required").max(200),
+  dateFound: z.string().min(1, "Date is required"),
 });
 
 const aiQuestionSchema = z.object({

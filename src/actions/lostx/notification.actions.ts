@@ -9,6 +9,7 @@ const notificationKindMap: Record<string, NotificationItem["kind"]> = {
   CLAIM_PENDING: "claim-pending",
   ITEM_RETURNED: "recovered",
   MATCH_FOUND: "found",
+  POSSIBLE_RETURN: "found",
 };
 
 export async function getNotificationsAction(limit = 20) {

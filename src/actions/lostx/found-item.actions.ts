@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { foundItemService } from "@/services/lostx/found-item.service";
-import { createFoundItemSchema } from "@/zod/lostx.validation";
+import { createFoundItemSchema, finderTipSchema } from "@/zod/lostx.validation";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 
 export async function createFoundItemAction(formData: FormData) {
-  const raw = {
+    const raw = {
     title: formData.get("title"),
     description: formData.get("description"),
     privateDescription: formData.get("privateDescription"),
@@ -16,6 +16,7 @@ export async function createFoundItemAction(formData: FormData) {
     showImagePublic: formData.get("showImagePublic") === "true",
     showDescriptionPublic: formData.get("showDescriptionPublic") === "true",
     showLocationPublic: formData.get("showLocationPublic") === "true",
+    linkedLostItemId: formData.get("linkedLostItemId") || undefined,
   };
 
   const parsed = createFoundItemSchema.safeParse(raw);
@@ -38,6 +39,9 @@ export async function createFoundItemAction(formData: FormData) {
     payload.append("showImagePublic", String(parsed.data.showImagePublic ?? true));
     payload.append("showDescriptionPublic", String(parsed.data.showDescriptionPublic ?? true));
     payload.append("showLocationPublic", String(parsed.data.showLocationPublic ?? false));
+    if (parsed.data.linkedLostItemId) {
+      payload.append("linkedLostItemId", parsed.data.linkedLostItemId);
+    }
 
     const image = formData.get("image");
     if (image instanceof File && image.size > 0) {
@@ -151,5 +155,49 @@ export async function updateFoundItemAction(id: string, formData: FormData) {
     return { success: true, message: response.message, data: response.data };
   } catch (error: unknown) {
     return { success: false, message: getApiErrorMessage(error, "Failed to update found item") };
+  }
+}
+
+export async function submitFinderTipAction(lostItemId: string, formData: FormData) {
+  const raw = {
+    note: formData.get("note")?.toString() ?? "",
+    location: formData.get("location"),
+    dateFound: formData.get("dateFound"),
+  };
+
+  const parsed = finderTipSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? "Validation failed",
+    };
+  }
+
+  try {
+    const payload = new FormData();
+    if (parsed.data.note?.trim()) payload.append("note", parsed.data.note.trim());
+    payload.append("location", parsed.data.location);
+    payload.append("dateFound", parsed.data.dateFound);
+
+    const image = formData.get("image");
+    if (image instanceof File && image.size > 0) {
+      payload.append("image", image);
+    }
+
+    const response = await foundItemService.createFromLostTip(lostItemId, payload);
+
+    revalidatePath("/dashboard/found");
+    revalidatePath("/dashboard/lost");
+    revalidatePath("/dashboard");
+    revalidatePath("/browse");
+
+    return {
+      success: true,
+      message: response.message,
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    return { success: false, message: getApiErrorMessage(error, "Failed to submit finder tip") };
   }
 }

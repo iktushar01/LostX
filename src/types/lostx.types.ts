@@ -66,6 +66,7 @@ export interface FoundItem {
   showDescriptionPublic?: boolean;
   showLocationPublic?: boolean;
   userId: string;
+  linkedLostItemId?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: ItemUser;
@@ -214,7 +215,8 @@ export type NotificationType =
   | "CLAIM_REJECTED"
   | "CLAIM_PENDING"
   | "ITEM_RETURNED"
-  | "MATCH_FOUND";
+  | "MATCH_FOUND"
+  | "POSSIBLE_RETURN";
 
 export interface AppNotification {
   id: string;

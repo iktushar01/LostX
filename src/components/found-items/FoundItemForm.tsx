@@ -28,12 +28,14 @@ import { formatLabel } from "@/components/shared/ItemBadges";
 import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { CampusLocationPicker } from "@/components/shared/CampusLocationPicker";
 import { createFoundItemAction } from "@/actions/lostx/found-item.actions";
+import { MatchingLostReports } from "@/components/found-items/MatchingLostReports";
 
 export function FoundItemForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [linkedLostItemId, setLinkedLostItemId] = useState<string | null>(null);
 
   const {
     register,
@@ -55,7 +57,10 @@ export function FoundItemForm() {
   });
 
   const category = watch("category");
+  const title = watch("title");
+  const description = watch("description");
   const location = watch("location");
+  const dateFound = watch("dateFound");
   const showImagePublic = watch("showImagePublic");
   const showDescriptionPublic = watch("showDescriptionPublic");
   const showLocationPublic = watch("showLocationPublic");
@@ -79,6 +84,7 @@ export function FoundItemForm() {
     Object.entries(values).forEach(([key, value]) =>
       formData.append(key, String(value ?? "")),
     );
+    if (linkedLostItemId) formData.append("linkedLostItemId", linkedLostItemId);
     if (imageFile) formData.append("image", imageFile);
 
     const result = await createFoundItemAction(formData);
@@ -99,7 +105,8 @@ export function FoundItemForm() {
       <div className="space-y-1">
         <h1 className="text-xl font-medium tracking-tight">Report found item</h1>
         <p className="text-sm text-muted-foreground">
-          Hide photos or details for valuable items to prevent fake claims.
+          Hide photos or details for valuable items to prevent fake claims. If someone already
+          posted a lost report, link to it below so they get notified.
         </p>
       </div>
 
@@ -166,6 +173,17 @@ export function FoundItemForm() {
           onChange={(v) => setValue("location", v, { shouldDirty: true, shouldValidate: true })}
           error={errors.location?.message}
           label="Location Found"
+        />
+
+        <MatchingLostReports
+          title={title}
+          description={description}
+          category={category}
+          location={location}
+          dateFound={dateFound}
+          linkedLostItemId={linkedLostItemId}
+          onLink={(id) => setLinkedLostItemId(id)}
+          onClearLink={() => setLinkedLostItemId(null)}
         />
 
         <div className="space-y-3 rounded-lg border border-dashed p-4">

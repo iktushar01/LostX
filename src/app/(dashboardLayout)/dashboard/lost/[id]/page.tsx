@@ -3,6 +3,7 @@ import { getLostItemByIdAction } from "@/actions/lostx/lost-item.actions";
 import { getCurrentUserAction } from "@/actions/_getCurrentUserAction";
 import { ItemDetailLayout } from "@/components/items/ItemDetailLayout";
 import { DeleteLostItemButton } from "@/components/lost-items/DeleteLostItemButton";
+import { FinderTipDialog } from "@/components/lost-items/FinderTipDialog";
 import { SuggestedMatches } from "@/components/matches/SuggestedMatches";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,10 @@ export default async function LostItemDetailPage({ params }: Props) {
   const item = itemResult.data;
   const currentUserId = userResult.success ? userResult.data?.id : null;
   const isOwner = currentUserId === item.userId;
+  const canReportFound =
+    Boolean(currentUserId) &&
+    !isOwner &&
+    (item.status === "OPEN" || item.status === "MATCHED");
 
   return (
     <ItemDetailLayout
@@ -37,6 +42,11 @@ export default async function LostItemDetailPage({ params }: Props) {
       imageUrl={item.imageUrl}
       reporterName={item.user?.name}
       backHref="/dashboard/lost"
+      primaryCta={
+        canReportFound ? (
+          <FinderTipDialog lostItemId={item.id} lostItemTitle={item.title} />
+        ) : undefined
+      }
       actions={
         isOwner ? (
           <>

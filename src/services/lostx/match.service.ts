@@ -10,4 +10,12 @@ export const matchService = {
 
   getForFoundItem: (id: string) =>
     httpClient.get<ScoredMatch[]>(`/matches/for-found/${id}`),
+
+  getDraftMatches: (params: {
+    title: string;
+    description: string;
+    category: string;
+    location: string;
+    dateFound: string;
+  }) => httpClient.get<ScoredMatch[]>("/matches/draft", { params }),
 };

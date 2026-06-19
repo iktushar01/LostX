@@ -14,6 +14,9 @@ export const foundItemService = {
   create: (data: FormData) =>
     httpClient.post<FoundItem>("/found-items", data),
 
+  createFromLostTip: (lostItemId: string, data: FormData) =>
+    httpClient.post<FoundItem>(`/found-items/from-lost-tip/${lostItemId}`, data),
+
   update: (id: string, data: FormData) =>
     httpClient.patch<FoundItemDetail>(`/found-items/${id}`, data),
 
