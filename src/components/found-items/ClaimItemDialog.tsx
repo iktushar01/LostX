@@ -37,7 +37,7 @@ export function ClaimItemDialog({ foundItemId, itemTitle, size = "default" }: Cl
         <DialogHeader>
           <DialogTitle>Claim: {itemTitle}</DialogTitle>
           <DialogDescription>
-            High-confidence matches with correct verification may auto-approve. Otherwise staff will review.
+            Staff will review your verification answers and approve or reject the claim.
           </DialogDescription>
         </DialogHeader>
 

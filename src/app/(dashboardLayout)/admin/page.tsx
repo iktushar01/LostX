@@ -69,7 +69,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>1. User submits claim with verification answer</p>
-            <p>2. High match score + correct answer may auto-approve</p>
+            <p>2. Staff review verification answers and AI recommendations</p>
             <p>3. Otherwise staff reviews pending claims</p>
             <p>4. Claimant confirms receipt → finder marks returned</p>
           </CardContent>
