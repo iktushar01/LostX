@@ -9,7 +9,6 @@ import {
   MapPin,
   BadgeCheck,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fadeUp, staggerContainer } from "./motion";
 
 const features = [
@@ -47,47 +46,66 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section id="features" className="relative py-24 md:py-32 border-t border-border/40 bg-background overflow-hidden">
+      
+      {/* Structural Minimal Grid Headers */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mx-auto mb-14 max-w-2xl text-center"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mb-20 max-w-3xl text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-cyan-400">
-            Features
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Everything you need to recover lost items
+          {/* Tech Subtitle tag */}
+          <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-blue-500 dark:text-cyan-400 bg-blue-500/5 dark:bg-cyan-500/10 border border-blue-500/20 px-3 py-1 rounded-md shadow-[0_0_15px_rgba(34,211,238,0.05)]">
+            Capabilities // Core Engine
+          </span>
+          
+          <h2 className="mt-6 text-4xl font-black tracking-tighter sm:text-5xl text-foreground">
+            Everything you need to recover lost items.
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            Built for students, staff, and campus admins — fast, secure, and centralized.
+          <p className="mt-4 text-base tracking-tight text-muted-foreground max-w-xl mx-auto font-normal">
+            Built for modern campuses. Rapid logging, automated parsing, and bulletproof accountability.
           </p>
         </motion.div>
 
+        {/* Pro Micro-Bento Architecture layout */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
-          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-px bg-border/40 overflow-hidden rounded-2xl border border-border/40 sm:grid-cols-2 lg:grid-cols-3"
         >
           {features.map((feature, i) => (
-            <motion.div key={feature.title} variants={fadeUp} custom={i}>
-              <Card className="group h-full border-border/60 bg-card/50 transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5">
-                <CardHeader>
-                  <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/15 to-cyan-400/15 text-blue-600 transition-colors group-hover:from-blue-500/25 group-hover:to-cyan-400/25 dark:text-cyan-400">
-                    <feature.icon className="h-5 w-5" />
-                  </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
+            <motion.div 
+              key={feature.title} 
+              variants={fadeUp} 
+              custom={i}
+              className="group relative bg-background p-8 transition-colors duration-300 hover:bg-neutral-500/[0.01] dark:hover:bg-neutral-400/[0.01]"
+            >
+              {/* Discrete Corner Bracket Accent */}
+              <div className="absolute right-4 top-4 font-mono text-[10px] text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                // 0x0{i + 1}
+              </div>
+
+              {/* Icon Container with Subtle Shadowless Glow */}
+              <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-secondary/30 text-foreground/70 transition-all duration-300 group-hover:border-cyan-500/40 group-hover:text-cyan-400 group-hover:bg-cyan-500/[0.03]">
+                <feature.icon className="h-4 w-4 stroke-[1.8]" />
+              </div>
+
+              <div>
+                <h3 className="text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-blue-500 dark:group-hover:text-cyan-400">
+                  {feature.title}
+                </h3>
+                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground font-normal group-hover:text-muted-foreground/90 transition-colors">
+                  {feature.description}
+                </p>
+              </div>
+
+              {/* Ambient radial overlay hover light element */}
+              <div className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(max-width_300px_rgba(34,211,238,0.03),transparent_70%)]" />
             </motion.div>
           ))}
         </motion.div>

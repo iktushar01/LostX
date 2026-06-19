@@ -30,50 +30,75 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="bg-muted/30 py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section id="how-it-works" className="relative py-24 md:py-32 border-t border-border/40 bg-neutral-900/10 dark:bg-black/20 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        
+        {/* Header Structure */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mx-auto mb-14 max-w-2xl text-center"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mb-24 max-w-3xl text-center"
         >
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-cyan-400">
-            How It Works
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Three steps to recovery
+          <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-blue-500 dark:text-cyan-400 bg-blue-500/5 dark:bg-cyan-500/10 border border-blue-500/20 px-3 py-1 rounded-md">
+            Execution // Lifecycle
+          </span>
+          <h2 className="mt-6 text-4xl font-black tracking-tighter sm:text-5xl text-foreground">
+            Three steps to recovery.
           </h2>
         </motion.div>
 
+        {/* Sharp Linear Connective Grid */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
-          className="relative grid gap-8 md:grid-cols-3"
+          viewport={{ once: true, margin: "-40px" }}
+          className="relative grid gap-12 md:grid-cols-3 md:gap-8 lg:gap-16"
         >
-          <div className="absolute left-0 right-0 top-12 hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block" />
+          {/* Futuristic horizontal timeline connector beam */}
+          <div className="absolute left-[10%] right-[10%] top-[2.25rem] hidden h-[1px] bg-gradient-to-r from-blue-500/0 via-border/80 to-cyan-500/0 md:block" />
 
           {steps.map((item, i) => (
             <motion.div
               key={item.step}
               variants={fadeUp}
               custom={i}
-              className="relative rounded-2xl border border-border/60 bg-background/80 p-6 backdrop-blur-sm transition-shadow hover:shadow-lg"
+              className="group relative flex flex-col items-start"
             >
-              <div className="mb-4 flex items-center justify-between">
-                <span className="text-xs font-bold tracking-widest text-blue-600 dark:text-cyan-400">
-                  STEP {item.step}
-                </span>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-md">
-                  <item.icon className="h-4 w-4" />
+              {/* Top Node Indicator Area */}
+              <div className="mb-6 flex w-full items-center justify-between md:justify-start md:gap-4">
+                {/* Node Ring Icon */}
+                <div className="relative z-10 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-xl border border-border/80 bg-background transition-all duration-300 group-hover:border-cyan-500/40 group-hover:shadow-[0_0_20px_rgba(34,211,238,0.06)]">
+                  <item.icon className="h-5 w-5 text-foreground/70 transition-colors group-hover:text-cyan-400" />
+                  
+                  {/* Digital Index Tab */}
+                  <span className="absolute -bottom-2 -right-2 font-mono text-[10px] bg-secondary border border-border px-1.5 py-0.5 rounded text-muted-foreground/80 scale-90 group-hover:text-foreground transition-colors">
+                    {item.step}
+                  </span>
                 </div>
+
+                {/* Massive Translucent Background Number for Mobile/Viewport contrast */}
+                <span className="font-mono text-5xl font-black text-neutral-300/20 dark:text-neutral-800/30 select-none md:hidden">
+                  #{item.step}
+                </span>
               </div>
-              <h3 className="text-lg font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {item.description}
-              </p>
+
+              {/* Text Layout Block */}
+              <div className="mt-2 space-y-3">
+                <span className="font-mono text-[10px] tracking-widest uppercase text-blue-500 dark:text-cyan-400 font-bold block">
+                  STAGE_0{i + 1}
+                </span>
+                
+                <h3 className="text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-blue-500 dark:group-hover:text-cyan-400">
+                  {item.title}
+                </h3>
+                
+                <p className="text-sm leading-relaxed text-muted-foreground font-normal">
+                  {item.description}
+                </p>
+              </div>
             </motion.div>
           ))}
         </motion.div>
