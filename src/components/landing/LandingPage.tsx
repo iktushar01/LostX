@@ -11,8 +11,8 @@ export function LandingPage() {
     <main className="overflow-x-hidden">
       <HeroSection />
       <StatsSection />
-      <FeaturesSection />
       <HowItWorksSection />
+      <FeaturesSection />
       <DemoItemsSection />
       <WhyLostXSection />
       <CtaSection />

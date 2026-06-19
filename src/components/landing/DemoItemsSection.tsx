@@ -5,13 +5,14 @@ import { Wallet, IdCard, Laptop, KeyRound } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { UTTARA_UNIVERSITY } from "@/constants/university";
 import { fadeUp, staggerContainer } from "./motion";
 
 const demoItems = [
   {
     icon: Wallet,
     title: "Brown Leather Wallet",
-    location: "Main Library",
+    location: "Central Library",
     date: "Mar 12, 2026",
     status: "Found",
     statusVariant: "default" as const,
@@ -29,7 +30,7 @@ const demoItems = [
   {
     icon: Laptop,
     title: "Silver Laptop",
-    location: "Engineering Lab",
+    location: "Computer Lab Complex",
     date: "Mar 8, 2026",
     status: "Matched",
     statusVariant: "secondary" as const,
@@ -38,7 +39,7 @@ const demoItems = [
   {
     icon: KeyRound,
     title: "Key Bundle",
-    location: "Parking Lot B",
+    location: "Science Building",
     date: "Mar 7, 2026",
     status: "Available",
     statusVariant: "outline" as const,
@@ -57,13 +58,14 @@ export function DemoItemsSection() {
           className="mx-auto mb-14 max-w-2xl text-center"
         >
           <p className="text-sm font-semibold uppercase tracking-wider text-blue-600 dark:text-cyan-400">
-            Live Listings
+            Campus listings
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Recent campus items
+            See what is on the board
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Sample reports from your university lost & found board.
+            Real reports from {UTTARA_UNIVERSITY.name} — searchable by building, category, and date.
+            Browse to check if someone already found what you lost.
           </p>
         </motion.div>
 
