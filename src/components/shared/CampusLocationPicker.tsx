@@ -24,7 +24,8 @@ interface CampusLocationPickerProps {
 
 /** Google Maps embed centered on Uttara University campus with optional location query. */
 function buildCampusMapUrl(locationQuery?: string): string {
-  const { lat, lng, mapZoom, name, address } = UTTARA_UNIVERSITY;
+  const { coordinates, mapZoom, name, address } = UTTARA_UNIVERSITY;
+  const { lat, lng } = coordinates;
 
   if (locationQuery?.trim()) {
     const query = `${locationQuery.trim()}, ${name}, ${address}`;
