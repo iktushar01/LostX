@@ -1,9 +1,37 @@
 import { httpClient } from "@/lib/axios/httpClient";
-import { Claim, ClaimListFilters, ClaimMessage } from "@/types/lostx.types";
+import {
+  AiVerificationAnswer,
+  AiVerificationQuestion,
+  Claim,
+  ClaimListFilters,
+  ClaimMessage,
+} from "@/types/lostx.types";
 
 export const claimService = {
-  create: (data: { foundItemId: string; lostItemId: string; answer: string }) =>
-    httpClient.post<Claim>("/claims", data),
+  generateVerificationQuestions: (data: { foundItemId: string; lostItemId: string }) =>
+    httpClient.post<{ questions: AiVerificationQuestion[] }>(
+      "/claims/verification-questions",
+      data,
+    ),
+
+  generateVerificationQuestionsPreview: (data: {
+    foundItemId: string;
+    title: string;
+    description: string;
+    privateDescription: string;
+  }) =>
+    httpClient.post<{ questions: AiVerificationQuestion[] }>(
+      "/claims/verification-questions/preview",
+      data,
+    ),
+
+  create: (data: {
+    foundItemId: string;
+    lostItemId: string;
+    answer?: string;
+    aiQuestions?: AiVerificationQuestion[];
+    aiAnswers?: AiVerificationAnswer[];
+  }) => httpClient.post<Claim>("/claims", data),
 
   createQuick: (data: Record<string, unknown>) =>
     httpClient.post<Claim>("/claims/quick", data),

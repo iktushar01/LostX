@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -45,17 +45,15 @@ export function EditLostItemForm({ item }: EditLostItemFormProps) {
     defaultValues: {
       title: item.title,
       description: item.description,
+      privateDescription: item.privateDescriptionPlain ?? "",
       category: item.category,
       location: item.location,
       dateLost: new Date(item.dateLost).toISOString().split("T")[0],
-      verificationQuestion: item.verificationQuestion ?? "",
-      verificationAnswer: "",
+      showImagePublic: item.showImagePublic ?? true,
+      showDescriptionPublic: item.showDescriptionPublic ?? true,
+      showLocationPublic: item.showLocationPublic ?? false,
     },
   });
-
-  useEffect(() => {
-    setValue("verificationAnswer", "");
-  }, [setValue]);
 
   const category = watch("category");
   const location = watch("location");
@@ -139,21 +137,11 @@ export function EditLostItemForm({ item }: EditLostItemFormProps) {
       />
 
       <div className="space-y-2">
-        <Label htmlFor="verificationQuestion">Verification Question</Label>
-        <Input id="verificationQuestion" {...register("verificationQuestion")} />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="verificationAnswer">Verification Answer</Label>
-        <Input
-          id="verificationAnswer"
-          type="password"
-          autoComplete="off"
-          {...register("verificationAnswer")}
-        />
-        <p className="text-xs text-muted-foreground">
-          Re-enter the verification answer to keep this report claimable.
-        </p>
+        <Label htmlFor="privateDescription">Private details (encrypted)</Label>
+        <Textarea id="privateDescription" rows={4} {...register("privateDescription")} />
+        {errors.privateDescription && (
+          <p className="text-sm text-destructive">{errors.privateDescription.message}</p>
+        )}
       </div>
 
       <ImageUploadField

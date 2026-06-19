@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -17,11 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { quickClaimSchema, QuickClaimInput } from "@/zod/lostx.validation";
-import { createQuickClaimAction } from "@/actions/lostx/claim.actions";
+import { createQuickClaimAction, generateQuickVerificationQuestionsAction } from "@/actions/lostx/claim.actions";
 import { CampusLocationPicker } from "@/components/shared/CampusLocationPicker";
-import { ITEM_CATEGORIES } from "@/types/lostx.types";
+import { AiVerificationQuestion, ITEM_CATEGORIES } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
+import { defaultVisibilityForCategory } from "@/zod/lostx.validation";
 
 interface QuickClaimFormProps {
   foundItemId: string;
@@ -31,46 +29,60 @@ interface QuickClaimFormProps {
 export function QuickClaimForm({ foundItemId, onSuccess }: QuickClaimFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [privateDescription, setPrivateDescription] = useState("");
+  const [category, setCategory] = useState<(typeof ITEM_CATEGORIES)[number]>("OTHER");
+  const [location, setLocation] = useState("");
+  const [dateLost, setDateLost] = useState(new Date().toISOString().slice(0, 10));
+  const [questions, setQuestions] = useState<AiVerificationQuestion[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<QuickClaimInput>({
-    resolver: zodResolver(quickClaimSchema),
-    defaultValues: {
+  const loadQuestions = async () => {
+    if (!title.trim() || !description.trim() || !privateDescription.trim()) {
+      toast.error("Fill in title, public summary, and private details first.");
+      return;
+    }
+    setLoadingQuestions(true);
+    const result = await generateQuickVerificationQuestionsAction({
       foundItemId,
-      title: "",
-      description: "",
-      category: "OTHER",
-      location: "",
-      dateLost: new Date().toISOString().slice(0, 10),
-      verificationQuestion: "",
-      verificationAnswer: "",
-      answer: "",
-    },
-  });
+      title,
+      description,
+      privateDescription,
+    });
+    setLoadingQuestions(false);
+    if (!result.success || !result.data?.questions?.length) {
+      toast.error(result.message ?? "Could not generate questions");
+      return;
+    }
+    setQuestions(result.data.questions);
+    setAnswers({});
+  };
 
-  const location = watch("location");
-  const category = watch("category");
-
-  const onSubmit = async (values: QuickClaimInput) => {
-    if (values.answer.trim().toLowerCase() !== values.verificationAnswer.trim().toLowerCase()) {
-      toast.error("Your claim answer must match the verification answer you set.");
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (questions.length === 0) {
+      toast.error("Generate verification questions first.");
       return;
     }
 
     setSubmitting(true);
-    const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      if (value !== undefined && value !== "") {
-        formData.append(key, String(value));
-      }
+    const visibility = defaultVisibilityForCategory(category);
+    const result = await createQuickClaimAction({
+      foundItemId,
+      title,
+      description,
+      privateDescription,
+      category,
+      location,
+      dateLost,
+      showImagePublic: visibility.showImagePublic,
+      showDescriptionPublic: visibility.showDescriptionPublic,
+      showLocationPublic: visibility.showLocationPublic,
+      aiQuestions: questions,
+      aiAnswers: questions.map((q) => ({ id: q.id, answer: answers[q.id]?.trim() ?? "" })),
     });
-
-    const result = await createQuickClaimAction(formData);
     setSubmitting(false);
 
     if (!result.success) {
@@ -85,29 +97,35 @@ export function QuickClaimForm({ foundItemId, onSuccess }: QuickClaimFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
+    <form onSubmit={onSubmit} className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
       <p className="text-sm text-muted-foreground">
-        No lost report yet? Create one inline and submit your claim in a single step.
+        Create a lost report inline with encrypted private details, then verify with AI.
       </p>
 
       <div className="space-y-2">
         <Label htmlFor="title">What did you lose?</Label>
-        <Input id="title" {...register("title")} placeholder="e.g. Black student ID card" />
-        {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" rows={3} {...register("description")} />
-        {errors.description && (
-          <p className="text-sm text-destructive">{errors.description.message}</p>
-        )}
+        <Label htmlFor="description">Public summary</Label>
+        <Textarea id="description" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="privateDescription">Private details (encrypted)</Label>
+        <Textarea
+          id="privateDescription"
+          rows={3}
+          value={privateDescription}
+          onChange={(e) => setPrivateDescription(e.target.value)}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Category</Label>
-          <Select value={category} onValueChange={(v) => setValue("category", v as QuickClaimInput["category"], { shouldValidate: true })}>
+          <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {ITEM_CATEGORIES.map((cat) => (
@@ -118,56 +136,36 @@ export function QuickClaimForm({ foundItemId, onSuccess }: QuickClaimFormProps) 
         </div>
         <div className="space-y-2">
           <Label htmlFor="dateLost">Date lost</Label>
-          <Input id="dateLost" type="date" {...register("dateLost")} />
+          <Input id="dateLost" type="date" value={dateLost} onChange={(e) => setDateLost(e.target.value)} />
         </div>
       </div>
 
-      <CampusLocationPicker
-        value={location}
-        onChange={(v) => setValue("location", v, { shouldValidate: true })}
-        onStructuredChange={(parts) => {
-          if (parts.building) setValue("building", parts.building);
-          if (parts.floor) setValue("floor", parts.floor);
-          if (parts.room) setValue("room", parts.room);
-        }}
-        error={errors.location?.message}
-      />
+      <CampusLocationPicker value={location} onChange={setLocation} />
 
-      <div className="space-y-2">
-        <Label htmlFor="verificationQuestion">Verification question</Label>
-        <Input
-          id="verificationQuestion"
-          {...register("verificationQuestion")}
-          placeholder="e.g. What name is on the card?"
-        />
-        {errors.verificationQuestion && (
-          <p className="text-sm text-destructive">{errors.verificationQuestion.message}</p>
-        )}
-      </div>
+      <Button type="button" variant="outline" className="w-full" disabled={loadingQuestions} onClick={loadQuestions}>
+        {loadingQuestions && <Spinner className="mr-2 h-4 w-4" />}
+        Generate AI verification questions
+      </Button>
 
-      <div className="space-y-2">
-        <Label htmlFor="verificationAnswer">Secret verification answer</Label>
-        <Input
-          id="verificationAnswer"
-          {...register("verificationAnswer")}
-          placeholder="Only you should know this"
-        />
-        {errors.verificationAnswer && (
-          <p className="text-sm text-destructive">{errors.verificationAnswer.message}</p>
-        )}
-      </div>
+      {questions.map((q) => (
+        <div key={q.id} className="space-y-1.5">
+          <Label>{q.question}</Label>
+          <Input
+            value={answers[q.id] ?? ""}
+            onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+          />
+        </div>
+      ))}
 
-      <div className="space-y-2">
-        <Label htmlFor="answer">Confirm your answer (for claim)</Label>
-        <Input
-          id="answer"
-          {...register("answer")}
-          placeholder="Type the same verification answer"
-        />
-        {errors.answer && <p className="text-sm text-destructive">{errors.answer.message}</p>}
-      </div>
-
-      <Button type="submit" disabled={submitting} className="w-full">
+      <Button
+        type="submit"
+        disabled={
+          submitting ||
+          questions.length === 0 ||
+          questions.some((q) => !answers[q.id]?.trim())
+        }
+        className="w-full"
+      >
         {submitting && <Spinner className="mr-2" />}
         Submit Quick Claim
       </Button>

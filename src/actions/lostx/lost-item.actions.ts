@@ -9,11 +9,13 @@ export async function createLostItemAction(formData: FormData) {
   const raw = {
     title: formData.get("title"),
     description: formData.get("description"),
+    privateDescription: formData.get("privateDescription"),
     category: formData.get("category"),
     location: formData.get("location"),
     dateLost: formData.get("dateLost"),
-    verificationQuestion: formData.get("verificationQuestion"),
-    verificationAnswer: formData.get("verificationAnswer"),
+    showImagePublic: formData.get("showImagePublic") === "true",
+    showDescriptionPublic: formData.get("showDescriptionPublic") === "true",
+    showLocationPublic: formData.get("showLocationPublic") === "true",
   };
 
   const parsed = createLostItemSchema.safeParse(raw);
@@ -29,11 +31,13 @@ export async function createLostItemAction(formData: FormData) {
     const payload = new FormData();
     payload.append("title", parsed.data.title);
     payload.append("description", parsed.data.description);
+    payload.append("privateDescription", parsed.data.privateDescription);
     payload.append("category", parsed.data.category);
     payload.append("location", parsed.data.location);
     payload.append("dateLost", parsed.data.dateLost);
-    payload.append("verificationQuestion", parsed.data.verificationQuestion);
-    payload.append("verificationAnswer", parsed.data.verificationAnswer);
+    payload.append("showImagePublic", String(parsed.data.showImagePublic ?? true));
+    payload.append("showDescriptionPublic", String(parsed.data.showDescriptionPublic ?? true));
+    payload.append("showLocationPublic", String(parsed.data.showLocationPublic ?? false));
 
     const image = formData.get("image");
     if (image instanceof File && image.size > 0) {
@@ -108,11 +112,13 @@ export async function updateLostItemAction(id: string, formData: FormData) {
   const raw = {
     title: formData.get("title"),
     description: formData.get("description"),
+    privateDescription: formData.get("privateDescription"),
     category: formData.get("category"),
     location: formData.get("location"),
     dateLost: formData.get("dateLost"),
-    verificationQuestion: formData.get("verificationQuestion"),
-    verificationAnswer: formData.get("verificationAnswer"),
+    showImagePublic: formData.get("showImagePublic") === "true",
+    showDescriptionPublic: formData.get("showDescriptionPublic") === "true",
+    showLocationPublic: formData.get("showLocationPublic") === "true",
   };
 
   const parsed = createLostItemSchema.safeParse(raw);

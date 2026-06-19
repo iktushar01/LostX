@@ -6,11 +6,35 @@ import { createClaimSchema } from "@/zod/lostx.validation";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import { ClaimListFilters } from "@/types/lostx.types";
 
+export async function generateVerificationQuestionsAction(
+  foundItemId: string,
+  lostItemId: string,
+) {
+  try {
+    const response = await claimService.generateVerificationQuestions({
+      foundItemId,
+      lostItemId,
+    });
+    return { success: true, data: response.data };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getApiErrorMessage(error, "Failed to generate verification questions"),
+    };
+  }
+}
+
 export async function createClaimAction(formData: FormData) {
+  const aiQuestionsRaw = formData.get("aiQuestions");
+  const aiAnswersRaw = formData.get("aiAnswers");
+
   const raw = {
     foundItemId: formData.get("foundItemId"),
     lostItemId: formData.get("lostItemId"),
-    answer: formData.get("answer"),
+    answer: formData.get("answer") || undefined,
+    aiQuestions:
+      typeof aiQuestionsRaw === "string" ? JSON.parse(aiQuestionsRaw) : undefined,
+    aiAnswers: typeof aiAnswersRaw === "string" ? JSON.parse(aiAnswersRaw) : undefined,
   };
 
   const parsed = createClaimSchema.safeParse(raw);
@@ -127,10 +151,26 @@ export async function sendClaimMessageAction(claimId: string, content: string) {
   }
 }
 
-export async function createQuickClaimAction(formData: FormData) {
-  const raw = Object.fromEntries(formData.entries());
+export async function generateQuickVerificationQuestionsAction(data: {
+  foundItemId: string;
+  title: string;
+  description: string;
+  privateDescription: string;
+}) {
+  try {
+    const response = await claimService.generateVerificationQuestionsPreview(data);
+    return { success: true, data: response.data };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      message: getApiErrorMessage(error, "Failed to generate verification questions"),
+    };
+  }
+}
+
+export async function createQuickClaimAction(payload: Record<string, unknown>) {
   const { quickClaimSchema } = await import("@/zod/lostx.validation");
-  const parsed = quickClaimSchema.safeParse(raw);
+  const parsed = quickClaimSchema.safeParse(payload);
 
   if (!parsed.success) {
     return {

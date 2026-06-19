@@ -25,12 +25,16 @@ export interface LostItem {
   id: string;
   title: string;
   description: string;
+  privateDescriptionPlain?: string | null;
   category: ItemCategory;
   imageUrl: string | null;
   location: string;
   dateLost: string;
   status: LostItemStatus;
   isFeatured?: boolean;
+  showImagePublic?: boolean;
+  showDescriptionPublic?: boolean;
+  showLocationPublic?: boolean;
   verificationQuestion?: string | null;
   userId: string;
   createdAt: string;
@@ -43,24 +47,41 @@ export interface LostItemForClaim {
   title: string;
   category: ItemCategory;
   status: LostItemStatus;
-  verificationQuestion: string | null;
+  verificationQuestion?: string | null;
+  hasPrivateDetails?: boolean;
 }
 
 export interface FoundItem {
   id: string;
   title: string;
   description: string;
+  privateDescriptionPlain?: string | null;
   category: ItemCategory;
   imageUrl: string | null;
   location: string;
   dateFound: string;
   status: FoundItemStatus;
   isFeatured?: boolean;
+  showImagePublic?: boolean;
+  showDescriptionPublic?: boolean;
+  showLocationPublic?: boolean;
   userId: string;
   createdAt: string;
   updatedAt: string;
   user?: ItemUser;
   claims?: { id: string; status: ClaimStatus; createdAt: string }[];
+}
+
+export type AiRecommendation = "APPROVE" | "REVIEW" | "REJECT";
+
+export interface AiVerificationQuestion {
+  id: string;
+  question: string;
+}
+
+export interface AiVerificationAnswer {
+  id: string;
+  answer: string;
 }
 
 export interface Claim {
@@ -72,19 +93,30 @@ export interface Claim {
   lostItemId?: string | null;
   autoApproved?: boolean;
   matchScore?: number | null;
+  aiQuestions?: AiVerificationQuestion[] | null;
+  aiAnswers?: AiVerificationAnswer[] | null;
+  aiConfidence?: number | null;
+  aiRecommendation?: AiRecommendation | null;
   receivedConfirmedAt?: string | null;
   handoffCode?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: ItemUser;
-  foundItem?: FoundItem & { user?: ItemUser };
+  foundItem?: FoundItem & {
+    user?: ItemUser;
+    privateDescriptionPlain?: string | null;
+  };
   lostItem?: {
     id: string;
     title: string;
+    description?: string;
+    privateDescriptionPlain?: string | null;
     verificationQuestion?: string | null;
-    verificationAnswer?: string | null;
     status?: LostItemStatus;
     category?: ItemCategory;
+    showImagePublic?: boolean;
+    showDescriptionPublic?: boolean;
+    showLocationPublic?: boolean;
   };
   messages?: ClaimMessage[];
 }

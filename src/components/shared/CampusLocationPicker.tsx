@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { MapPin } from "lucide-react";
 import { CAMPUS_BUILDINGS } from "@/constants/campus";
+import { UTTARA_UNIVERSITY } from "@/constants/university";
 
 interface CampusLocationPickerProps {
   value: string;
@@ -21,6 +22,18 @@ interface CampusLocationPickerProps {
   label?: string;
 }
 
+/** Google Maps embed centered on Uttara University campus with optional location query. */
+function buildCampusMapUrl(locationQuery?: string): string {
+  const { lat, lng, mapZoom, name, address } = UTTARA_UNIVERSITY;
+
+  if (locationQuery?.trim()) {
+    const query = `${locationQuery.trim()}, ${name}, ${address}`;
+    return `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=${mapZoom}&output=embed`;
+  }
+
+  return `https://www.google.com/maps?q=${lat},${lng}&z=${mapZoom}&output=embed`;
+}
+
 export function CampusLocationPicker({
   value,
   onChange,
@@ -28,10 +41,7 @@ export function CampusLocationPicker({
   error,
   label = "Location",
 }: CampusLocationPickerProps) {
-  const mapUrl = useMemo(() => {
-    if (!value.trim()) return "";
-    return `https://www.google.com/maps?q=${encodeURIComponent(value)}&output=embed`;
-  }, [value]);
+  const mapUrl = useMemo(() => buildCampusMapUrl(value), [value]);
 
   const selectedBuilding = CAMPUS_BUILDINGS.includes(value as (typeof CAMPUS_BUILDINGS)[number])
     ? value
@@ -92,17 +102,18 @@ export function CampusLocationPicker({
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      {mapUrl ? (
-        <div className="overflow-hidden rounded-xl border">
-          <iframe
-            title="Location map preview"
-            src={mapUrl}
-            className="h-56 w-full"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
-      ) : null}
+      <div className="overflow-hidden rounded-xl border">
+        <p className="border-b bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
+          {UTTARA_UNIVERSITY.name} campus map
+        </p>
+        <iframe
+          title={`${UTTARA_UNIVERSITY.name} campus map`}
+          src={mapUrl}
+          className="h-56 w-full"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
     </div>
   );
 }

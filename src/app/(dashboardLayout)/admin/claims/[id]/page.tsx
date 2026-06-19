@@ -145,6 +145,77 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
 
           <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
             <CardHeader>
+              <CardTitle>AI Verification</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              {claim.matchScore != null && (
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Match score
+                  </p>
+                  <p className="mt-1 font-medium">{claim.matchScore}%</p>
+                </div>
+              )}
+              {claim.aiConfidence != null && (
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    AI confidence
+                  </p>
+                  <p className="mt-1 font-medium">{claim.aiConfidence}% — {claim.aiRecommendation}</p>
+                </div>
+              )}
+              {Array.isArray(claim.aiQuestions) && claim.aiQuestions.length > 0 ? (
+                <div className="space-y-3">
+                  {claim.aiQuestions.map((q) => {
+                    const answer = Array.isArray(claim.aiAnswers)
+                      ? claim.aiAnswers.find((a) => a.id === q.id)?.answer
+                      : undefined;
+                    return (
+                      <div key={q.id} className="rounded-lg border p-3">
+                        <p className="text-xs text-muted-foreground">{q.question}</p>
+                        <p className="mt-1 font-medium">{answer ?? "—"}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">
+                  Legacy verification: {lostItem?.verificationQuestion ?? "—"}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+            <CardHeader>
+              <CardTitle>Private details (admin only)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div>
+                <p className="text-xs font-medium uppercase text-muted-foreground">Lost — private</p>
+                <p className="mt-1 whitespace-pre-wrap rounded-lg border bg-muted/40 p-3">
+                  {lostItem?.privateDescriptionPlain ?? "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase text-muted-foreground">Found — private</p>
+                <p className="mt-1 whitespace-pre-wrap rounded-lg border bg-muted/40 p-3">
+                  {foundItem?.privateDescriptionPlain ?? "—"}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {foundItem?.showImagePublic === false && (
+                  <Badge variant="outline">Found image hidden on browse</Badge>
+                )}
+                {lostItem?.showImagePublic === false && (
+                  <Badge variant="outline">Lost image hidden on browse</Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+            <CardHeader>
               <CardTitle>Verification Review</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -154,31 +225,11 @@ export default async function AdminClaimDetailPage({ params }: AdminClaimDetailP
                 </p>
                 <p className="mt-1 font-medium">{lostItem?.title ?? "—"}</p>
               </div>
-              <div>
+              <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Verification Question
+                  Claimant response summary
                 </p>
-                <p className="mt-1 text-sm">
-                  {lostItem?.verificationQuestion ?? "No question provided"}
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900 dark:bg-emerald-950/20">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Verification Check
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                    {claim.status === "REJECTED"
-                      ? "Failed — answer did not match"
-                      : "Passed — answer matched (stored securely, not shown)"}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    User Answer
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm">{claim.answer}</p>
-                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm">{claim.answer}</p>
               </div>
             </CardContent>
           </Card>

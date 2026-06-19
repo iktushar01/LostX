@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,10 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createClaimSchema, CreateClaimInput } from "@/zod/lostx.validation";
-import { createClaimAction } from "@/actions/lostx/claim.actions";
+import {
+  createClaimAction,
+  generateVerificationQuestionsAction,
+} from "@/actions/lostx/claim.actions";
 import { getMyLostItemsForClaimAction } from "@/actions/lostx/lost-item.actions";
-import { LostItemForClaim } from "@/types/lostx.types";
+import { AiVerificationQuestion, LostItemForClaim } from "@/types/lostx.types";
 import { formatLabel } from "@/components/shared/ItemBadges";
 import Link from "next/link";
 
@@ -31,22 +32,16 @@ interface ClaimFormProps {
 export function ClaimForm({ foundItemId, onSuccess }: ClaimFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [lostItems, setLostItems] = useState<LostItemForClaim[]>([]);
   const [loadingLostItems, setLoadingLostItems] = useState(true);
+  const [lostItemId, setLostItemId] = useState("");
+  const [questions, setQuestions] = useState<AiVerificationQuestion[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [legacyAnswer, setLegacyAnswer] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<CreateClaimInput>({
-    resolver: zodResolver(createClaimSchema),
-    defaultValues: { foundItemId, lostItemId: "", answer: "" },
-  });
-
-  const selectedLostItemId = watch("lostItemId");
-  const selectedLostItem = lostItems.find((item) => item.id === selectedLostItemId);
+  const selectedLostItem = lostItems.find((item) => item.id === lostItemId);
+  const usesAiFlow = selectedLostItem?.hasPrivateDetails === true;
 
   useEffect(() => {
     getMyLostItemsForClaimAction().then((result) => {
@@ -55,12 +50,47 @@ export function ClaimForm({ foundItemId, onSuccess }: ClaimFormProps) {
     });
   }, []);
 
-  const onSubmit = async (values: CreateClaimInput) => {
+  useEffect(() => {
+    setQuestions([]);
+    setAnswers({});
+    setLegacyAnswer("");
+  }, [lostItemId]);
+
+  const loadQuestions = async () => {
+    if (!lostItemId) return;
+    setLoadingQuestions(true);
+    const result = await generateVerificationQuestionsAction(foundItemId, lostItemId);
+    setLoadingQuestions(false);
+
+    if (!result.success || !result.data?.questions?.length) {
+      toast.error(result.message ?? "Could not generate verification questions");
+      return;
+    }
+
+    setQuestions(result.data.questions);
+    setAnswers({});
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lostItemId) return;
+
     setSubmitting(true);
     const formData = new FormData();
-    formData.append("foundItemId", values.foundItemId);
-    formData.append("lostItemId", values.lostItemId);
-    formData.append("answer", values.answer);
+    formData.append("foundItemId", foundItemId);
+    formData.append("lostItemId", lostItemId);
+
+    if (usesAiFlow && questions.length > 0) {
+      formData.append("aiQuestions", JSON.stringify(questions));
+      formData.append(
+        "aiAnswers",
+        JSON.stringify(
+          questions.map((q) => ({ id: q.id, answer: answers[q.id]?.trim() ?? "" })),
+        ),
+      );
+    } else {
+      formData.append("answer", legacyAnswer);
+    }
 
     const result = await createClaimAction(formData);
     setSubmitting(false);
@@ -88,7 +118,7 @@ export function ClaimForm({ foundItemId, onSuccess }: ClaimFormProps) {
     return (
       <div className="space-y-4 text-sm">
         <p className="text-muted-foreground">
-          You need an open lost item report with a verification question before claiming.
+          Report a lost item with private details before claiming a found item.
         </p>
         <Button asChild>
           <Link href="/dashboard/lost/new">Report a lost item</Link>
@@ -98,13 +128,10 @@ export function ClaimForm({ foundItemId, onSuccess }: ClaimFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label>Your lost item report</Label>
-        <Select
-          value={selectedLostItemId}
-          onValueChange={(value) => setValue("lostItemId", value, { shouldValidate: true })}
-        >
+        <Select value={lostItemId} onValueChange={setLostItemId}>
           <SelectTrigger>
             <SelectValue placeholder="Select your lost report" />
           </SelectTrigger>
@@ -116,35 +143,65 @@ export function ClaimForm({ foundItemId, onSuccess }: ClaimFormProps) {
             ))}
           </SelectContent>
         </Select>
-        {errors.lostItemId && (
-          <p className="text-sm text-destructive">{errors.lostItemId.message}</p>
-        )}
       </div>
 
-      {selectedLostItem?.verificationQuestion && (
-        <div className="rounded-lg border bg-muted/40 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Verification question
-          </p>
-          <p className="mt-1 text-sm font-medium">{selectedLostItem.verificationQuestion}</p>
+      {lostItemId && usesAiFlow && (
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={loadingQuestions}
+            onClick={loadQuestions}
+            className="w-full"
+          >
+            {loadingQuestions ? <Spinner className="mr-2 h-4 w-4" /> : null}
+            Generate AI verification questions
+          </Button>
+
+          {questions.map((q) => (
+            <div key={q.id} className="space-y-1.5">
+              <Label htmlFor={`answer-${q.id}`}>{q.question}</Label>
+              <Input
+                id={`answer-${q.id}`}
+                value={answers[q.id] ?? ""}
+                onChange={(e) =>
+                  setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
+                }
+                placeholder="Your answer"
+              />
+            </div>
+          ))}
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="answer">Your answer</Label>
-        <Textarea
-          id="answer"
-          rows={4}
-          {...register("answer")}
-          placeholder="Answer the verification question to prove ownership."
-          disabled={!selectedLostItemId}
-        />
-        {errors.answer && (
-          <p className="text-sm text-destructive">{errors.answer.message}</p>
-        )}
-      </div>
+      {lostItemId && !usesAiFlow && selectedLostItem?.verificationQuestion && (
+        <div className="space-y-2">
+          <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+            <p className="text-xs font-medium uppercase text-muted-foreground">Legacy question</p>
+            <p className="mt-1 font-medium">{selectedLostItem.verificationQuestion}</p>
+          </div>
+          <Label htmlFor="legacyAnswer">Your answer</Label>
+          <Textarea
+            id="legacyAnswer"
+            rows={3}
+            value={legacyAnswer}
+            onChange={(e) => setLegacyAnswer(e.target.value)}
+          />
+        </div>
+      )}
 
-      <Button type="submit" disabled={submitting || !selectedLostItemId} className="w-full">
+      <Button
+        type="submit"
+        disabled={
+          submitting ||
+          !lostItemId ||
+          (usesAiFlow
+            ? questions.length === 0 ||
+              questions.some((q) => !answers[q.id]?.trim())
+            : !legacyAnswer.trim())
+        }
+        className="w-full"
+      >
         {submitting && <Spinner className="mr-2" />}
         Submit Claim
       </Button>
