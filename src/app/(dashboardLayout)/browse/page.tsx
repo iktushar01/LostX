@@ -5,6 +5,8 @@ import { getFoundItemsAction } from "@/actions/lostx/found-item.actions";
 import { getBrowseMatchSuggestionsAction } from "@/actions/lostx/match.actions";
 import { BrowseItem } from "@/types/lostx.types";
 
+export const dynamic = "force-dynamic";
+
 export default async function BrowsePage() {
   const [lostResult, foundResult, matchResult] = await Promise.all([
     getLostItemsAction({ limit: 100 }),

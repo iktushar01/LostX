@@ -10,7 +10,11 @@ export const normalizeUserRole = (
 
     const normalizedRole = role.toUpperCase();
 
-    if (normalizedRole === "SUPER_ADMIN" || normalizedRole === "ADMIN") {
+    if (
+        normalizedRole === "SUPER_ADMIN" ||
+        normalizedRole === "ADMIN" ||
+        normalizedRole === "STAFF"
+    ) {
         return "ADMIN";
     }
 

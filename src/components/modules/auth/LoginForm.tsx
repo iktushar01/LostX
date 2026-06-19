@@ -13,6 +13,12 @@ import { Eye, EyeOff, Lock, Mail, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Logo from "@/components/shared/logo/logo";
+import { Badge } from "@/components/ui/badge";
+import {
+  DEMO_CREDENTIALS,
+  DEMO_ROLE_LABELS,
+  type DemoCredential,
+} from "@/constants/demoCredentials";
 
 interface LoginFormProps {
   redirectPath?: string;
@@ -26,23 +32,36 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
     mutationFn: (payload: ILoginPayload) => loginAction(payload, redirectPath),
   });
 
+  const submitLogin = async (payload: ILoginPayload) => {
+    setServerError(null);
+    try {
+      const result = (await mutateAsync(payload)) as any;
+      if (!result.success) {
+        setServerError(result.message || "Login failed");
+      }
+    } catch (error: any) {
+      setServerError(`Login failed: ${error.message}`);
+    }
+  };
+
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
     },
     onSubmit: async ({ value }) => {
-      setServerError(null);
-      try {
-        const result = await mutateAsync(value) as any;
-        if (!result.success) {
-          setServerError(result.message || "Login failed");
-        }
-      } catch (error: any) {
-        setServerError(`Login failed: ${error.message}`);
-      }
-    }
+      await submitLogin(value);
+    },
   });
+
+  const handleDemoLogin = async (credential: DemoCredential) => {
+    form.setFieldValue("email", credential.email);
+    form.setFieldValue("password", credential.password);
+    await submitLogin({
+      email: credential.email,
+      password: credential.password,
+    });
+  };
 
   return (
     <main className="relative flex min-h-screen w-full items-center justify-center bg-background p-4 sm:p-6 lg:p-8">
@@ -57,7 +76,7 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
       </nav>
 
       {/* Strictly Clean & Centered Container */}
-      <div className="w-full max-w-[360px] space-y-6">
+      <div className="w-full max-w-[400px] space-y-6">
         <div className="flex justify-center">
           <Logo />
         </div>
@@ -153,6 +172,30 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
             or
           </span>
           <div className="flex-grow border-t border-border" />
+        </div>
+
+        <div className="space-y-2.5 rounded-md border border-dashed border-border bg-muted/30 p-3">
+          <p className="text-center text-xs font-medium text-muted-foreground">
+            Demo accounts
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {DEMO_CREDENTIALS.map((credential) => (
+              <Button
+                key={credential.email}
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isPending}
+                onClick={() => handleDemoLogin(credential)}
+                className="h-auto flex-col items-start gap-1 px-2.5 py-2 text-left"
+              >
+                <Badge variant="secondary" className="text-[10px]">
+                  {DEMO_ROLE_LABELS[credential.role]}
+                </Badge>
+                <span className="text-xs font-medium">{credential.label}</span>
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Native OAuth Button */}
