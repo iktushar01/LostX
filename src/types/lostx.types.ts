@@ -19,6 +19,7 @@ export interface ItemUser {
   id: string;
   name: string;
   email?: string;
+  image?: string | null;
 }
 
 export interface LostItem {

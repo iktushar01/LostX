@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, MapPin, ImageIcon, Star, ArrowUpRight } from "lucide-react";
 import { CategoryBadge, StatusBadge, TypeBadge } from "./ItemBadges";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,10 @@ interface ItemCardProps {
   isFeatured?: boolean;
   href?: string;
   showAction?: boolean;
+  reporterUserId?: string;
+  reporterName?: string;
+  reporterImage?: string | null;
+  showReporter?: boolean;
 }
 
 export function ItemCard({
@@ -33,8 +38,19 @@ export function ItemCard({
   isFeatured = false,
   href,
   showAction = true,
+  reporterUserId,
+  reporterName,
+  reporterImage,
+  showReporter = false,
 }: ItemCardProps) {
   const link = href ?? (type === "lost" ? `/dashboard/lost/${id}` : `/dashboard/found/${id}`);
+  const reporterInitials =
+    reporterName
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "?";
 
   return (
     <Card
@@ -110,6 +126,25 @@ export function ItemCard({
             <span className="font-mono">{new Date(date).toLocaleDateString()}</span>
           </div>
         </div>
+
+        {showReporter && reporterUserId && reporterName && (
+          <Link
+            href={`/users/${reporterUserId}`}
+            className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50/80 p-2.5 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Avatar className="h-8 w-8 shrink-0 ring-2 ring-background">
+              <AvatarImage src={reporterImage ?? undefined} alt={reporterName} />
+              <AvatarFallback className="text-[10px] font-semibold">{reporterInitials}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Reported by
+              </p>
+              <p className="truncate text-sm font-semibold text-foreground">{reporterName}</p>
+            </div>
+          </Link>
+        )}
       </CardContent>
 
       {showAction && (

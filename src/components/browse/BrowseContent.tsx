@@ -266,6 +266,10 @@ function BrowseItemGrid({
                 status={item.status}
                 imageUrl={item.imageUrl}
                 isFeatured={item.isFeatured}
+                showReporter
+                reporterUserId={item.userId ?? item.user?.id}
+                reporterName={item.user?.name}
+                reporterImage={item.user?.image}
               />
             </div>
             {topMatch && (
