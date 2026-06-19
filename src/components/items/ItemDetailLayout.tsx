@@ -55,17 +55,16 @@ export function ItemDetailLayout({
         </Button>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] items-start">
-        {/* Media Window Section */}
-        <div className="space-y-4 lg:sticky lg:top-6">
-          <div className="group overflow-hidden rounded-[28px] border border-slate-200 bg-slate-50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] dark:border-slate-800 dark:bg-slate-900/50">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_1.1fr] lg:items-start">
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-slate-50 shadow-[0_8px_30px_rgba(0,0,0,0.02)] dark:border-slate-800 dark:bg-slate-900/50">
             {imageUrl ? (
               <div className="aspect-square w-full overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={imageUrl} 
-                  alt={title} 
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" 
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  className="h-full w-full object-cover"
                 />
               </div>
             ) : (
@@ -148,10 +147,9 @@ export function ItemDetailLayout({
           {/* Management / Action Triggers row */}
           {actions && <div className="flex flex-wrap gap-2.5 pt-2">{actions}</div>}
         </div>
-
-        {/* Optional Aside Placement slots */}
-        {aside && <div className="lg:col-span-2 pt-4">{aside}</div>}
       </div>
+
+      {aside && <div className="pt-2">{aside}</div>}
     </div>
   );
 }

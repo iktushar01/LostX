@@ -9,10 +9,8 @@ export default async function DashboardLostPage() {
   const result = await getMyLostItemsAction(24);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
+    <div className="mx-auto space-y-8">
       <PageHeader
-        title="My Lost Items"
-        description="Track everything you've reported as lost. Status updates as claims are reviewed."
       >
         <Button asChild>
           <Link href="/dashboard/lost/new">

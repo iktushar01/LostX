@@ -59,9 +59,7 @@ export function FoundItemForm() {
     setImagePreview(file ? URL.createObjectURL(file) : null);
   };
 
-  const clearImage = () => {
-    handleImageChange(null);
-  };
+  const clearImage = () => handleImageChange(null);
 
   const onSubmit = async (values: CreateFoundItemInput) => {
     setSubmitting(true);
@@ -85,58 +83,110 @@ export function FoundItemForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-2xl space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
-        <Input id="title" {...register("title")} placeholder="e.g. iPhone 14" />
-        {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-xl space-y-8 py-6">
+      <div className="space-y-1">
+        <h1 className="text-xl font-medium tracking-tight">Report found item</h1>
+        <p className="text-sm text-muted-foreground">
+          List what you found on campus so the owner can browse, match, and claim it safely.
+        </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" rows={4} {...register("description")} />
-        {errors.description && (
-          <p className="text-sm text-destructive">{errors.description.message}</p>
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="title" className="text-sm font-medium">
+            Item Title
+          </Label>
+          <Input
+            id="title"
+            {...register("title")}
+            placeholder="e.g., Black Samsung phone"
+            className="h-10 rounded-lg"
+          />
+          {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-sm font-medium">
+            Description
+          </Label>
+          <Textarea
+            id="description"
+            rows={4}
+            {...register("description")}
+            placeholder="Describe color, brand, condition, and anything that helps identify it..."
+            className="resize-none rounded-lg leading-relaxed"
+          />
+          {errors.description && (
+            <p className="text-xs text-destructive">{errors.description.message}</p>
+          )}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Category</Label>
+            <Select
+              value={category}
+              onValueChange={(v) => setValue("category", v as CreateFoundItemInput["category"])}
+            >
+              <SelectTrigger className="h-10 rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg">
+                {ITEM_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat} className="rounded-md">
+                    {formatLabel(cat)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dateFound" className="text-sm font-medium">
+              Date Found
+            </Label>
+            <Input id="dateFound" type="date" {...register("dateFound")} className="h-10 rounded-lg" />
+            {errors.dateFound && (
+              <p className="text-xs text-destructive">{errors.dateFound.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Location Found</Label>
+          <CampusLocationPicker
+            value={location}
+            onChange={(v) => setValue("location", v, { shouldDirty: true, shouldValidate: true })}
+            error={errors.location?.message}
+            label=""
+          />
+        </div>
+
+        <div className="space-y-2 pt-2">
+          <Label className="text-sm font-medium">Photo Reference</Label>
+          <div className="overflow-hidden rounded-lg border border-dashed border-border bg-muted/20">
+            <ImageUploadField
+              previewUrl={imagePreview}
+              onFileChange={handleImageChange}
+              onClear={clearImage}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={submitting}
+        className="h-11 w-full rounded-lg text-sm font-medium shadow-none transition-all"
+      >
+        {submitting ? (
+          <div className="flex items-center gap-2">
+            <Spinner className="h-4 w-4 text-current" />
+            <span>Publishing...</span>
+          </div>
+        ) : (
+          "Submit Report"
         )}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Category</Label>
-          <Select
-            value={category}
-            onValueChange={(v) => setValue("category", v as CreateFoundItemInput["category"])}
-          >
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {ITEM_CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>{formatLabel(cat)}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="dateFound">Date Found</Label>
-          <Input id="dateFound" type="date" {...register("dateFound")} />
-        </div>
-      </div>
-
-      <CampusLocationPicker
-        value={location}
-        onChange={(v) => setValue("location", v, { shouldDirty: true, shouldValidate: true })}
-        error={errors.location?.message}
-        label="Location"
-      />
-
-      <ImageUploadField
-        previewUrl={imagePreview}
-        onFileChange={handleImageChange}
-        onClear={clearImage}
-      />
-
-      <Button type="submit" disabled={submitting}>
-        {submitting && <Spinner className="mr-2" />}
-        Report Found Item
       </Button>
     </form>
   );

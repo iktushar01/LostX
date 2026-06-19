@@ -23,7 +23,6 @@ import { formatLabel } from "@/components/shared/ItemBadges";
 import { ImageUploadField } from "@/components/shared/ImageUploadField";
 import { CampusLocationPicker } from "@/components/shared/CampusLocationPicker";
 import { createLostItemAction } from "@/actions/lostx/lost-item.actions";
-import { ShieldCheck, Sparkles } from "lucide-react";
 
 export function LostItemForm() {
   const router = useRouter();
@@ -57,14 +56,11 @@ export function LostItemForm() {
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
     }
-
     setImageFile(file);
     setImagePreview(file ? URL.createObjectURL(file) : null);
   };
 
-  const clearImage = () => {
-    handleImageChange(null);
-  };
+  const clearImage = () => handleImageChange(null);
 
   const onSubmit = async (values: CreateLostItemInput) => {
     setSubmitting(true);
@@ -88,121 +84,120 @@ export function LostItemForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-2xl space-y-8 animate-in fade-in-50 duration-300">
-      
-      {/* Intro Header */}
-      <div className="space-y-1.5 border-b border-slate-100 dark:border-slate-800 pb-5">
-        <h2 className="text-xl font-extrabold tracking-tight flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500/20" /> Report Something Missing
-        </h2>
-        <p className="text-xs font-medium text-muted-foreground"> Fill out the details below to broadcast it to the feed and trigger AI auto-matching.</p>
+    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-xl space-y-8 py-6">
+      {/* Clean, Editorial Header */}
+      <div className="space-y-1">
+        <h1 className="text-xl font-medium tracking-tight">Report missing item</h1>
+        <p className="text-sm text-muted-foreground">
+          Provide details below to list it on the feed and start auto-matching.
+        </p>
       </div>
 
-      {/* Main Fields Container */}
-      <div className="space-y-5">
+      <div className="space-y-6">
+        {/* Item Title */}
         <div className="space-y-2">
-          <Label htmlFor="title" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Item Title</Label>
+          <Label htmlFor="title" className="text-sm font-medium">Item Title</Label>
           <Input 
             id="title" 
             {...register("title")} 
-            placeholder="What's missing? (e.g., Space Gray AirPods Pro)" 
-            className="h-11 rounded-xl border-slate-200/80 bg-slate-50/35 focus-visible:ring-primary dark:border-slate-800 dark:bg-slate-900/20"
+            placeholder="e.g., Space Gray AirPods Pro" 
+            className="h-10 rounded-lg"
           />
-          {errors.title && <p className="text-xs font-semibold text-destructive font-mono">{errors.title.message}</p>}
+          {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
 
+        {/* Description */}
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Detailed Description</Label>
+          <Label htmlFor="description" className="text-sm font-medium">Description</Label>
           <Textarea 
             id="description" 
             rows={4} 
             {...register("description")} 
-            placeholder="Mention distinct stickers, case scuffs, lock-screen wallpapers, or specific item traits..."
-            className="rounded-xl border-slate-200/80 bg-slate-50/35 focus-visible:ring-primary dark:border-slate-800 dark:bg-slate-900/20 resize-none leading-relaxed"
+            placeholder="Mention distinct stickers, scuffs, or specific identifying traits..."
+            className="rounded-lg resize-none leading-relaxed"
           />
-          {errors.description && (
-            <p className="text-xs font-semibold text-destructive font-mono">{errors.description.message}</p>
-          )}
+          {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
         </div>
 
+        {/* Category & Date Grid */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Category Tag</Label>
+            <Label className="text-sm font-medium">Category</Label>
             <Select
               value={category}
               onValueChange={(v) => setValue("category", v as CreateLostItemInput["category"])}
             >
-              <SelectTrigger className="h-11 rounded-xl border-slate-200/80 bg-slate-50/35 dark:border-slate-800 dark:bg-slate-900/20 focus:ring-primary">
+              <SelectTrigger className="h-10 rounded-lg">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
+              <SelectContent className="rounded-lg">
                 {ITEM_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="rounded-lg">{formatLabel(cat)}</SelectItem>
+                  <SelectItem key={cat} value={cat} className="rounded-md">{formatLabel(cat)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          
           <div className="space-y-2">
-            <Label htmlFor="dateLost" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Date Lost</Label>
+            <Label htmlFor="dateLost" className="text-sm font-medium">Date Lost</Label>
             <Input 
               id="dateLost" 
               type="date" 
               {...register("dateLost")} 
-              className="h-11 rounded-xl border-slate-200/80 bg-slate-50/35 focus-visible:ring-primary dark:border-slate-800 dark:bg-slate-900/20 font-mono"
+              className="h-10 rounded-lg"
             />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-900/10 p-1">
+        {/* Location Picker */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Last Known Location</Label>
           <CampusLocationPicker
             value={location}
             onChange={(v) => setValue("location", v, { shouldDirty: true, shouldValidate: true })}
             error={errors.location?.message}
-            label="Last Known Location"
+            label="" // Clear inside label if component allows, let form control handle it
           />
         </div>
 
-        {/* Dynamic Verification Shield Box */}
-        <div className="rounded-2xl border border-slate-200/60 bg-slate-50/40 p-5 dark:border-slate-800/80 dark:bg-slate-900/30 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            <ShieldCheck className="h-4 w-4 text-primary" /> Ownership Verification Guard
+        {/* Clean Verification Section (No heavy card container) */}
+        <div className="pt-4 border-t border-border space-y-4">
+          <div>
+            <h3 className="text-sm font-medium">Ownership Verification</h3>
+            <p className="text-xs text-muted-foreground">Set a question only the true owner can answer.</p>
           </div>
           
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="verificationQuestion" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Custom Question</Label>
+              <Label htmlFor="verificationQuestion" className="text-xs text-muted-foreground">Custom Question</Label>
               <Input
                 id="verificationQuestion"
                 {...register("verificationQuestion")}
                 placeholder='e.g., "What sticker is on the back?"'
-                className="h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-primary dark:border-slate-800 dark:bg-slate-950"
+                className="h-10 rounded-lg"
               />
-              {errors.verificationQuestion && (
-                <p className="text-xs font-semibold text-destructive font-mono">{errors.verificationQuestion.message}</p>
-              )}
+              {errors.verificationQuestion && <p className="text-xs text-destructive">{errors.verificationQuestion.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="verificationAnswer" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Secret Answer</Label>
+              <Label htmlFor="verificationAnswer" className="text-xs text-muted-foreground">Secret Answer</Label>
               <Input
                 id="verificationAnswer"
                 type="password"
                 autoComplete="off"
                 {...register("verificationAnswer")}
-                placeholder="Only the real owner would know"
-                className="h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-primary dark:border-slate-800 dark:bg-slate-950 font-mono"
+                placeholder="Answer"
+                className="h-10 rounded-lg"
               />
-              {errors.verificationAnswer && (
-                <p className="text-xs font-semibold text-destructive font-mono">{errors.verificationAnswer.message}</p>
-              )}
+              {errors.verificationAnswer && <p className="text-xs text-destructive">{errors.verificationAnswer.message}</p>}
             </div>
           </div>
         </div>
 
-        {/* Media Block */}
-        <div className="space-y-2">
-          <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Photo Reference</Label>
-          <div className="overflow-hidden rounded-2xl border border-dashed border-slate-200/80 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-900/10">
+        {/* Photo Reference */}
+        <div className="space-y-2 pt-2">
+          <Label className="text-sm font-medium">Photo Reference</Label>
+          <div className="overflow-hidden rounded-lg border border-dashed border-border bg-muted/20">
             <ImageUploadField
               previewUrl={imagePreview}
               onFileChange={handleImageChange}
@@ -212,19 +207,19 @@ export function LostItemForm() {
         </div>
       </div>
 
-      {/* Modern High-Contrast CTA Trigger */}
+      {/* Primary CTA */}
       <Button 
         type="submit" 
         disabled={submitting}
-        className="w-full h-12 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 active:scale-[0.98] shadow-sm bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+        className="w-full h-11 rounded-lg text-sm font-medium transition-all shadow-none"
       >
         {submitting ? (
           <div className="flex items-center gap-2">
             <Spinner className="h-4 w-4 text-current" />
-            <span>Publishing to feed...</span>
+            <span>Publishing...</span>
           </div>
         ) : (
-          "Report Lost Item"
+          "Submit Report"
         )}
       </Button>
     </form>
