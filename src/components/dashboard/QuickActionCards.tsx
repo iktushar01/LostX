@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Search, HandHelping, PackageSearch } from "lucide-react";
+import { Plus, Search, HandHelping, PackageSearch, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const actions = [
@@ -8,61 +8,80 @@ const actions = [
     label: "Report Lost Item",
     description: "Lost something? Create a report with verification details.",
     icon: Plus,
-    accent: "from-amber-500/10 to-orange-500/5 border-amber-200/60 dark:border-amber-900/40",
-    iconColor: "text-amber-600 dark:text-amber-400",
+    accent: "hover:border-amber-500/50 dark:hover:border-amber-400/30",
+    glow: "bg-amber-500/10",
+    iconBg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
   },
   {
     href: "/dashboard/found/new",
     label: "Report Found Item",
     description: "Found something? Help someone get it back.",
     icon: PackageSearch,
-    accent: "from-blue-500/10 to-cyan-500/5 border-blue-200/60 dark:border-blue-900/40",
-    iconColor: "text-blue-600 dark:text-blue-400",
+    accent: "hover:border-blue-500/50 dark:hover:border-blue-400/30",
+    glow: "bg-blue-500/10",
+    iconBg: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
   },
   {
     href: "/browse",
     label: "Browse Items",
     description: "Search all lost & found reports on campus.",
     icon: Search,
-    accent: "from-emerald-500/10 to-green-500/5 border-emerald-200/60 dark:border-emerald-900/40",
-    iconColor: "text-emerald-600 dark:text-emerald-400",
+    accent: "hover:border-emerald-500/50 dark:hover:border-emerald-400/30",
+    glow: "bg-emerald-500/10",
+    iconBg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400",
   },
   {
     href: "/claims",
     label: "View Claims",
     description: "Track ownership claims and recovery progress.",
     icon: HandHelping,
-    accent: "from-violet-500/10 to-purple-500/5 border-violet-200/60 dark:border-violet-900/40",
-    iconColor: "text-violet-600 dark:text-violet-400",
+    accent: "hover:border-violet-500/50 dark:hover:border-violet-400/30",
+    glow: "bg-violet-500/10",
+    iconBg: "bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400",
   },
 ];
 
 export function QuickActionCards() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {actions.map((action) => (
         <Link
           key={action.href}
           href={action.href}
           className={cn(
-            "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 transition-all duration-200",
-            "hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50",
-            action.accent,
+            "group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card/60 p-6 backdrop-blur-sm transition-all duration-300 ease-out",
+            "hover:-translate-y-1 hover:bg-card hover:shadow-xl hover:shadow-shadow/5",
+            action.accent
           )}
         >
-          <div
-            className={cn(
-              "mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-background/80 shadow-sm",
-              action.iconColor,
-            )}
-          >
-            <action.icon className="h-5 w-5" />
+          {/* Ambient Hover Glow */}
+          <div className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none", action.glow)} />
+
+          <div>
+            {/* Icon Wrapper */}
+            <div
+              className={cn(
+                "mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-transparent shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3",
+                action.iconBg
+              )}
+            >
+              <action.icon className="h-5 w-5 stroke-[2.25]" />
+            </div>
+
+            {/* Content */}
+            <h3 className="font-semibold text-foreground tracking-tight text-base group-hover:text-primary transition-colors">
+              {action.label}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground/90">
+              {action.description}
+            </p>
           </div>
-          <p className="font-semibold tracking-tight">{action.label}</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">{action.description}</p>
-          <span className="mt-4 inline-flex text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-            Get started →
-          </span>
+
+          {/* Call to Action Footer */}
+          <div className="mt-6 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:text-primary">
+            <span>Get started</span>
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+          </div>
         </Link>
       ))}
     </div>
