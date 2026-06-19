@@ -105,7 +105,7 @@ export const AppSidebar = ({ data, user }: AppSidebarProps) => {
   const settingsHref =
     user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
       ? "/admin/dashboard/settings"
-      : "/dashboard/settings";
+      : "/dashboard/account";
 
   return (
     <Sidebar className="border-r border-slate-200/80 dark:border-slate-800">

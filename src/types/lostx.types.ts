@@ -238,6 +238,101 @@ export interface ClaimMessage {
   sender?: ItemUser;
 }
 
+export type TrustTier = "NEW" | "VERIFIED" | "TRUSTED" | "FLAGGED";
+
+export interface TrustInfo {
+  score: number;
+  tier: TrustTier;
+  signals: string[];
+}
+
+export interface AccountSummary {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    image: string | null;
+    memberSince: string;
+  };
+  stats: {
+    lostReports: number;
+    foundReports: number;
+    recoveredItems: number;
+    approvedClaims: number;
+    pendingClaims: number;
+    successfulHandoffs: number;
+  };
+  trust: TrustInfo;
+  hasCredentialLogin: boolean;
+}
+
+export interface PublicProfileUnavailable {
+  available: false;
+  id: string;
+  message: string;
+}
+
+export interface PublicProfileAvailable {
+  available: true;
+  id: string;
+  name: string;
+  image: string | null;
+  memberSince: string;
+  emailVerified: boolean;
+  stats: {
+    lostReports: number;
+    foundReports: number;
+    recoveredItems: number;
+    successfulHandoffs: number;
+  };
+  trust: TrustInfo;
+  reviews: { averageRating: number | null; count: number };
+  recentActivity: {
+    id: string;
+    type: "lost" | "found";
+    title: string;
+    category: ItemCategory;
+    status: string;
+    createdAt: string;
+  }[];
+  canReport: boolean;
+}
+
+export type PublicProfile = PublicProfileUnavailable | PublicProfileAvailable;
+
+export interface UserReviewItem {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  reviewer: { id: string; name: string; image: string | null };
+}
+
+export type UserReportReason =
+  | "FAKE_LISTING"
+  | "HARASSMENT"
+  | "SUSPICIOUS_CLAIM"
+  | "IMPERSONATION"
+  | "OTHER";
+
+export interface UserReportItem {
+  id: string;
+  reason: UserReportReason;
+  details: string;
+  status: string;
+  adminNote: string | null;
+  createdAt: string;
+  reporter: { id: string; name: string; email: string };
+  reported: {
+    id: string;
+    name: string;
+    email: string;
+    trustFlag: string;
+    status: string;
+  };
+}
+
 export type ChatbotItemType = "LOST" | "FOUND";
 
 export interface ChatbotMatch {

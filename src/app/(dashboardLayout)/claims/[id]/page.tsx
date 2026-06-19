@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, ShieldCheck, Sparkles, FileText, Lock } from "lucide-react";
 import { getClaimByIdAction, getClaimMessagesAction } from "@/actions/lostx/claim.actions";
 import { getCurrentUserAction } from "@/actions/_getCurrentUserAction";
+import { getEligibleReviewClaimsAction } from "@/actions/lostx/user-profile.actions";
+import { ReviewHandoffForm } from "@/components/users/ReviewHandoffForm";
+import { ReportUserDialog } from "@/components/users/ReportUserDialog";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/ItemBadges";
 import { ClaimChatPanel } from "@/components/claims/ClaimChatPanel";
@@ -29,6 +32,21 @@ export default async function ClaimDetailPage({ params }: ClaimDetailPageProps) 
   const claim = claimResult.data;
   const currentUserId = userResult.data.id;
   const isClaimant = claim.userId === currentUserId;
+  const finderId = claim.foundItem?.userId ?? claim.foundItem?.user?.id;
+  const otherPartyId = isClaimant ? finderId : claim.userId;
+  const otherPartyName = isClaimant
+    ? claim.foundItem?.user?.name ?? "Finder"
+    : claim.user?.name ?? "Claimant";
+
+  const handoffComplete =
+    claim.status === "APPROVED" &&
+    (Boolean(claim.receivedConfirmedAt) || claim.foundItem?.status === "RETURNED");
+
+  const eligibleReviewResult =
+    handoffComplete && otherPartyId
+      ? await getEligibleReviewClaimsAction(otherPartyId)
+      : { data: [] as { claimId: string; itemTitle: string }[] };
+  const eligibleClaims = (eligibleReviewResult.data ?? []).filter((c) => c.claimId === claim.id);
 
   return (
     <div className="mx-auto  space-y-6 px-4 py-6 animate-in fade-in duration-300">
@@ -153,6 +171,23 @@ export default async function ClaimDetailPage({ params }: ClaimDetailPageProps) 
                 <ConfirmReceivedButton
                   claimId={claim.id}
                   alreadyConfirmed={Boolean(claim.receivedConfirmedAt)}
+                />
+              </div>
+            )}
+
+            {handoffComplete && otherPartyId && (
+              <div className="space-y-3 pt-2">
+                <ReviewHandoffForm
+                  revieweeId={otherPartyId}
+                  revieweeName={otherPartyName}
+                  eligibleClaims={eligibleClaims}
+                />
+                <ReportUserDialog
+                  reportedId={otherPartyId}
+                  reportedName={otherPartyName}
+                  claimId={claim.id}
+                  foundItemId={claim.foundItemId}
+                  lostItemId={claim.lostItemId ?? undefined}
                 />
               </div>
             )}

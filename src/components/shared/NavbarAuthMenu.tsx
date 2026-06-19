@@ -164,7 +164,7 @@ export function NavbarAuthMenu({
             </div>
           </div>
           <Button variant="outline" className="w-full justify-start gap-2" asChild>
-            <Link href="/profile" onClick={onNavigate}>
+            <Link href="/dashboard/account" onClick={onNavigate}>
               <User className="h-4 w-4" />
               Profile
             </Link>
@@ -235,7 +235,7 @@ export function NavbarAuthMenu({
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem className="cursor-pointer gap-2 rounded-lg py-1.5" asChild>
-              <Link href="/profile">
+              <Link href="/dashboard/account">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span>Profile</span>
               </Link>

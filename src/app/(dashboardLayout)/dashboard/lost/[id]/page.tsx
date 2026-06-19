@@ -41,6 +41,7 @@ export default async function LostItemDetailPage({ params }: Props) {
       status={item.status}
       imageUrl={item.imageUrl}
       reporterName={item.user?.name}
+      reporterUserId={item.userId}
       backHref="/dashboard/lost"
       primaryCta={
         canReportFound ? (

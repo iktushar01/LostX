@@ -78,6 +78,26 @@ export default async function AdminDashboardPage() {
         <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-amber-600" />
+              User Reports
+            </CardTitle>
+            <CardDescription>
+              Review user reports and apply admin-only trust actions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="secondary" asChild>
+              <Link href="/admin/user-reports">
+                Review Reports
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200/80 shadow-sm dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <PackageSearch className="h-5 w-5 text-violet-600" />
               Item Moderation
             </CardTitle>

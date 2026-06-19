@@ -44,6 +44,7 @@ export default async function FoundItemDetailPage({ params }: Props) {
       status={item.status}
       imageUrl={item.imageUrl}
       reporterName={item.user?.name}
+      reporterUserId={item.userId}
       backHref="/dashboard/found"
       primaryCta={canClaim ? <ClaimItemDialog foundItemId={item.id} itemTitle={item.title} size="lg" /> : undefined}
       actions={

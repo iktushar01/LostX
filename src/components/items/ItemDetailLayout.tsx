@@ -16,6 +16,7 @@ interface ItemDetailLayoutProps {
   status: string;
   imageUrl?: string | null;
   reporterName?: string;
+  reporterUserId?: string;
   backHref: string;
   actions?: React.ReactNode;
   primaryCta?: React.ReactNode;
@@ -33,6 +34,7 @@ export function ItemDetailLayout({
   status,
   imageUrl,
   reporterName,
+  reporterUserId,
   backHref,
   actions,
   primaryCta,
@@ -126,7 +128,16 @@ export function ItemDetailLayout({
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Reported by</p>
-                      <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{reporterName}</p>
+                      {reporterUserId ? (
+                        <Link
+                          href={`/users/${reporterUserId}`}
+                          className="font-semibold text-primary hover:underline mt-0.5 inline-block"
+                        >
+                          {reporterName}
+                        </Link>
+                      ) : (
+                        <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{reporterName}</p>
+                      )}
                     </div>
                   </div>
                 </>
