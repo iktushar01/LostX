@@ -11,6 +11,8 @@ export default async function DashboardLostPage() {
   return (
     <div className="mx-auto space-y-8">
       <PageHeader
+        title="Lost Items"
+        description="Items you've reported as lost. Add a verification question so you can claim matching found reports."
       >
         <Button asChild>
           <Link href="/dashboard/lost/new">

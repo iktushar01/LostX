@@ -34,6 +34,8 @@ export default async function EditLostItemPage({ params }: EditLostItemPageProps
         </Link>
       </Button>
       <PageHeader
+        title="Edit Lost Report"
+        description="Update your lost item details or verification question."
       />
       <EditLostItemForm item={itemResult.data} />
     </div>

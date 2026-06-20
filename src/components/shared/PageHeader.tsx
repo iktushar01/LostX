@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,7 @@ export interface PageHeaderProps {
   actionLabel?: string;
   actionHref?: string;
   className?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export function PageHeader({

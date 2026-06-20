@@ -8,6 +8,8 @@ export default async function ClaimsPage() {
   return (
     <div className="mx-auto  space-y-8">
       <PageHeader
+        title="My Claims"
+        description="Track ownership claims you've submitted on found items."
       />
       <ClaimsGrid claims={result.data ?? []} />
     </div>
